@@ -12,7 +12,7 @@
   --navy:#013589; --teal:#00A796; --midnight:#011E4A;
   --kabut:#EEF1F5; --putih:#FBFCFD; --abu:#6B7A90;
   --rule:rgba(1,53,137,.15); --rule2:rgba(1,53,137,.3);
-  --warn:#B4531B; --warn-bg:rgba(180,83,27,.09);
+  --warn:#B4531B; --warn-bg:rgba(180,83,27,.09); --err:#A32D2D;
   --display:'Sora',system-ui,sans-serif;
   --body:'Instrument Sans',system-ui,sans-serif;
   --mono:'DM Mono',ui-monospace,monospace;
@@ -24,6 +24,7 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase}
 .tnum{font-variant-numeric:tabular-nums}
 .mono{font-family:var(--mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------------- layout ---------------- */
 .app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
@@ -32,7 +33,7 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .side .brand{display:flex;align-items:center;gap:10px;padding:18px 20px;text-decoration:none;
              border-bottom:1px solid rgba(255,255,255,.12);color:var(--putih);flex:none}
 .side .brand img{height:30px;width:auto;display:block}
-.side .brand .wm{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.side .brand .wm{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em;display:block}
 .side .brand .wm i{font-style:normal;color:var(--teal)}
 .side .brand .sub{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
              color:rgba(251,252,253,.45);display:block;margin-top:3px}
@@ -55,8 +56,7 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .main{min-width:0;display:flex;flex-direction:column}
 .bar{background:var(--putih);border-bottom:1px solid var(--rule);padding:18px 32px;
      display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.bar h1{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:-.02em;
-        color:var(--navy)}
+.bar h1{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:-.02em;color:var(--navy)}
 .bar p{color:var(--abu);font-size:13px;margin-top:2px}
 .wrap{padding:28px 32px 60px;max-width:1160px}
 [data-view]{display:none}
@@ -86,8 +86,7 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 
 table{width:100%;border-collapse:collapse;background:var(--putih)}
 th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-   color:var(--abu);font-weight:400;text-align:left;padding:11px 16px;
-   border-bottom:1px solid var(--rule2)}
+   color:var(--abu);font-weight:400;text-align:left;padding:11px 16px;border-bottom:1px solid var(--rule2)}
 td{padding:13px 16px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:top}
 td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
 td .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:2px}
@@ -107,49 +106,109 @@ tbody tr:hover{background:rgba(1,53,137,.03)}
 
 /* ---------------- wizard ---------------- */
 .wiz{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
-.pick{list-style:none}
+.step{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--abu)}
+.pick{list-style:none;margin-top:12px}
 .pick li+li{margin-top:-1px}
 .pick label{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--rule);
             background:var(--putih);padding:14px 16px;cursor:pointer}
 .pick input{margin-top:4px;accent-color:var(--navy);flex:none}
 .pick label:hover{border-color:var(--rule2)}
-.pick input:checked+span .nm{color:var(--navy);font-weight:600}
-.pick li:has(input:checked) label{border-color:var(--navy);background:rgba(1,53,137,.04);
-            position:relative;z-index:1}
+.pick li:has(input:checked) label{border-color:var(--navy);background:rgba(1,53,137,.04);position:relative;z-index:1}
+.pick li:has(input:checked) .nm{color:var(--navy);font-weight:600}
 .pick .nm{font-size:14.5px}
 .pick .ds{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:3px;
           display:flex;gap:14px;flex-wrap:wrap}
-.field{margin-top:22px}
-.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+
+/* ---------------- combobox ---------------- */
+.combo{position:relative;max-width:460px;margin-top:12px}
+.combo .inp{display:flex;align-items:center;gap:10px;border:1px solid var(--rule2);background:var(--putih);padding:0 14px}
+.combo .inp:focus-within{border-color:var(--navy)}
+.combo .inp svg{width:17px;height:17px;color:var(--abu);flex:none}
+.combo input{flex:1;min-width:0;border:0;outline:none;background:none;color:var(--midnight);
+             font-family:var(--body);font-size:15px;padding:13px 0}
+.combo .clr{border:0;background:none;color:var(--abu);cursor:pointer;font-size:19px;line-height:1;padding:4px}
+.combo ul{position:absolute;z-index:20;left:0;right:0;top:calc(100% - 1px);list-style:none;
+          background:var(--putih);border:1px solid var(--navy);max-height:262px;overflow-y:auto}
+.combo li{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--rule)}
+.combo li:last-child{border-bottom:0}
+.combo li.hi{background:rgba(1,53,137,.07)}
+.combo li .nm{font-size:14.5px}
+.combo li .ds{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:2px}
+.combo .none{padding:14px;color:var(--abu);font-size:14px;cursor:default}
+.chosen{display:flex;align-items:center;justify-content:space-between;gap:14px;
+        border:1px solid var(--navy);background:rgba(1,53,137,.04);padding:13px 16px;
+        max-width:460px;margin-top:12px}
+.chosen .nm{font-size:14.5px;font-weight:600;color:var(--navy)}
+.chosen .ds{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:2px}
+.chosen button{border:0;background:none;color:var(--navy);cursor:pointer;font-family:var(--mono);
+               font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+               border-bottom:2px solid var(--teal);padding-bottom:2px}
+
+/* ---------------- fields ---------------- */
+.field{margin-top:20px}
+.field>label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
              text-transform:uppercase;color:var(--abu);margin-bottom:7px}
-.field input{width:100%;max-width:340px;font-family:var(--mono);font-size:15px;padding:12px 14px;
+.field input{width:100%;max-width:460px;font-family:var(--body);font-size:15px;padding:12px 14px;
              border:1px solid var(--rule2);background:var(--putih);color:var(--midnight)}
+.field input.tnum,.field input[type="date"]{font-family:var(--mono)}
 .field input:focus{border-color:var(--navy);outline:none}
+.field .err{display:none;color:var(--err);font-size:13px;margin-top:6px}
+.field.bad input{border-color:var(--err)}
+.field.bad .err{display:block}
+.formsec{margin-top:30px;padding-top:22px;border-top:1px solid var(--rule)}
+.formsec:first-of-type{border-top:0;padding-top:0;margin-top:18px}
+
+/* ---------------- quote ---------------- */
 .quote{position:sticky;top:20px}
 .quote .row{display:flex;justify-content:space-between;gap:14px;padding:11px 20px;
             border-bottom:1px solid var(--rule);font-size:14px}
 .quote .row span:last-child{font-family:var(--mono)}
 .quote .tot{padding:16px 20px;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
-.quote .tot b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--navy);
-              letter-spacing:-.02em}
+.quote .tot b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:-.02em}
 .quote .com{background:rgba(0,167,150,.08);border-top:1px solid var(--rule);padding:16px 20px}
 .quote .com .k{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
-.quote .com b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--teal);
-              letter-spacing:-.02em}
+.quote .com b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--teal);letter-spacing:-.02em}
 .quote .com small{display:block;font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:5px}
 .flags{display:flex;flex-wrap:wrap;gap:7px;padding:16px 20px;border-top:1px solid var(--rule)}
 .empty{padding:22px 20px;color:var(--abu);font-size:14px}
 
+/* ---------------- detail ---------------- */
+.det{display:grid;grid-template-columns:250px 1fr;align-items:start}
+.rail{border-right:1px solid var(--rule);padding-right:24px}
+.detmain{padding-left:30px;min-width:0}
+ol.stages{list-style:none;margin-top:16px}
+.stages li{display:grid;grid-template-columns:13px 1fr;gap:14px;padding-bottom:18px;position:relative}
+.stages li::before{content:"";position:absolute;left:6px;top:15px;bottom:0;width:1px;background:var(--rule)}
+.stages li:last-child::before{display:none}
+.mark{width:13px;height:13px;margin-top:3px;border:1px solid var(--rule2);background:var(--putih)}
+.done .mark{background:var(--navy);border-color:var(--navy)}
+.now .mark{background:var(--teal);border-color:var(--teal);box-shadow:0 0 0 4px rgba(0,167,150,.18)}
+.skip .mark{border-style:dashed;background:transparent}
+.stages .t{font-size:14px;line-height:1.3}
+.now .t{font-weight:600;color:var(--navy)}
+.wait .t,.skip .t{color:var(--abu)}
+.stages .s{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:3px}
+dl.facts{border-top:1px solid var(--rule);margin-top:14px}
+dl.facts>div{display:flex;justify-content:space-between;gap:20px;padding:12px 0;
+             border-bottom:1px solid var(--rule);flex-wrap:wrap}
+dl.facts dt{font-family:var(--mono);font-size:12px;color:var(--abu)}
+dl.facts dd{font-size:14px;text-align:right}
+.note{background:rgba(0,167,150,.08);border-left:3px solid var(--teal);padding:14px 18px;
+      font-size:14px;max-width:72ch}
+
 /* ---------------- audit ---------------- */
 ol.log{list-style:none;border-top:1px solid var(--rule)}
-.log li{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:13px 0;
-        border-bottom:1px solid var(--rule)}
+.log li{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:13px 0;border-bottom:1px solid var(--rule)}
 .log time{font-family:var(--mono);font-size:11.5px;color:var(--abu)}
 .log .a{font-size:14px}
-.log .a em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--abu);
-           display:block;margin-top:2px}
+.log .a em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--abu);display:block;margin-top:2px}
 
-@media (max-width:1020px){ .wiz{grid-template-columns:1fr} .quote{position:static} }
+@media (max-width:1020px){
+  .wiz{grid-template-columns:1fr} .quote{position:static}
+  .det{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:1px solid var(--rule);padding:0 0 20px}
+  .detmain{padding-left:0;padding-top:26px}
+}
 
 /* ---------------- burger drawer ---------------- */
 .burger{display:none;align-items:center;justify-content:center;width:42px;height:42px;
@@ -160,7 +219,7 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
   .app{grid-template-columns:1fr}
   .side{position:fixed;top:0;left:0;bottom:0;width:270px;height:100dvh;z-index:60;
         transform:translateX(-100%);transition:transform .22s ease}
-  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(1,30,74,.001)}
+  .side.open{transform:none}
   .scrim{display:block;position:fixed;inset:0;background:rgba(1,30,74,.55);z-index:50;
          opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s}
   .scrim.on{opacity:1;visibility:visible}
@@ -188,7 +247,7 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
 <aside class="side" id="side">
   <a class="brand" href="#" data-go="beranda">
     <img src="logo-aks-white.png" alt="" onerror="this.remove()">
-    </span><span class="sub">Ordering System</span></span>
+    <span><span class="wm">AKS<i>.</i></span><span class="sub">Ordering System</span></span>
   </a>
   <nav aria-label="Menu utama">
     <p class="grp eyebrow">Operasional</p>
@@ -211,7 +270,7 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
   <div class="bar">
     <div class="lead">
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="side">
-        <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Menu</span>
+        <span class="sr">Menu</span>
         <svg id="ic-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
         <svg id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="display:none"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
       </button>
@@ -222,7 +281,6 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
 
   <div class="wrap">
 
-  <!-- ============ BERANDA ============ -->
   <section data-view="beranda" class="on">
     <div class="kpis">
       <div class="kpi"><div class="l">Order berjalan</div><div class="v tnum">14</div><div class="c">4 menunggu underwriting</div></div>
@@ -230,7 +288,6 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
       <div class="kpi"><div class="l">Batas bayar dekat</div><div class="v w tnum">3</div><div class="c">kurang dari 7 hari</div></div>
       <div class="kpi"><div class="l">Komisi belum cair</div><div class="v t tnum">8,4 jt</div><div class="c">dari 9 polis aktif</div></div>
     </div>
-
     <section class="sec">
       <h2>Perlu tindakan</h2>
       <div class="scroll"><table>
@@ -245,29 +302,41 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
     </section>
   </section>
 
-  <!-- ============ ORDER ============ -->
   <section data-view="order">
     <div class="scroll"><table>
       <thead><tr><th>Order</th><th>Penanggung</th><th>Tahap</th><th class="num">Premi</th><th class="num">Komisi</th><th class="num">Batas bayar</th></tr></thead>
-      <tbody>
-        <tr><td>ORD-2026-0148<span class="sub">PT Karya Bangun Sejahtera</span></td><td>Nusantara Jaya<span class="sub">Contractor&rsquo;s All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">8.460.000</td><td class="num">1.260.000</td><td class="num">31 Okt</td></tr>
+      <tbody id="ordrows">
+        <tr><td>ORD-2026-0148<span class="sub">PT Karya Bangun Sejahtera</span></td><td>Asuransi Nusantara Jaya<span class="sub">Contractor&rsquo;s All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">8.460.000</td><td class="num">1.260.000</td><td class="num">31 Okt</td></tr>
         <tr><td>ORD-2026-0152<span class="sub">Bpk. Hendra Wijaya</span></td><td>Sentosa Jiwa<span class="sub">Jiwa berjangka 10 thn</span></td><td><span class="tag go"><span class="d"></span>Underwriting</span></td><td class="num">4.200.000</td><td class="num">840.000</td><td class="num">&mdash;</td></tr>
-        <tr><td>ORD-2026-0141<span class="sub">Toko Sumber Rejeki</span></td><td>Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">3.150.000</td><td class="num">472.500</td><td class="num">16 Okt</td></tr>
-        <tr><td>ORD-2026-0137<span class="sub">PT Griya Mandiri</span></td><td>Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag"><span class="d"></span>Polis aktif</span></td><td class="num">12.800.000</td><td class="num">1.920.000</td><td class="num">lunas</td></tr>
-        <tr><td>ORD-2026-0139<span class="sub">CV Terang Abadi</span></td><td>Nusantara Jaya<span class="sub">Kendaraan bermotor</span></td><td><span class="tag"><span class="d"></span>Ditolak</span></td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td>ORD-2026-0141<span class="sub">Toko Sumber Rejeki</span></td><td>Asuransi Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">3.150.000</td><td class="num">472.500</td><td class="num">16 Okt</td></tr>
+        <tr><td>ORD-2026-0137<span class="sub">PT Griya Mandiri</span></td><td>Asuransi Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag"><span class="d"></span>Polis aktif</span></td><td class="num">12.800.000</td><td class="num">1.920.000</td><td class="num">lunas</td></tr>
+        <tr><td>ORD-2026-0139<span class="sub">CV Terang Abadi</span></td><td>Asuransi Nusantara Jaya<span class="sub">Kendaraan bermotor</span></td><td><span class="tag"><span class="d"></span>Ditolak</span></td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
       </tbody>
     </table></div>
   </section>
 
-  <!-- ============ ORDER BARU ============ -->
   <section data-view="baru">
     <div class="wiz">
       <div>
-        <h2 class="eyebrow" style="color:var(--abu)">1. Pilih penanggung</h2>
-        <ul class="pick" id="ins" style="margin-top:12px"></ul>
+        <p class="step">Langkah 1 dari 2 &middot; Pilih produk</p>
 
-        <h2 class="eyebrow" style="color:var(--abu);margin-top:30px">2. Pilih produk</h2>
-        <ul class="pick" id="prd" style="margin-top:12px"></ul>
+        <h2 class="step" style="margin-top:26px">Perusahaan asuransi</h2>
+        <div id="comboWrap">
+          <div class="combo">
+            <div class="inp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3" stroke-linecap="round"/></svg>
+              <input id="insq" type="text" role="combobox" aria-expanded="false" aria-controls="inslist"
+                     aria-autocomplete="list" autocomplete="off" placeholder="Ketik nama perusahaan asuransi"
+                     aria-label="Cari perusahaan asuransi">
+              <button class="clr" id="insclr" type="button" hidden aria-label="Hapus pencarian">&times;</button>
+            </div>
+            <ul id="inslist" role="listbox" aria-label="Hasil pencarian" hidden></ul>
+          </div>
+        </div>
+        <div id="insPicked"></div>
+
+        <h2 class="step" style="margin-top:30px">Produk</h2>
+        <ul class="pick" id="prd"></ul>
 
         <div class="field">
           <label for="ni">Nilai pertanggungan (Rp)</label>
@@ -282,12 +351,49 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
 
       <div class="card quote">
         <h2>Penawaran</h2>
-        <div id="qbody"><p class="empty">Pilih penanggung dan produk untuk melihat premi dan komisi.</p></div>
+        <div id="qbody"><p class="empty">Pilih perusahaan asuransi dan produk untuk melihat premi dan komisi.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ BATAS BAYAR ============ -->
+  <section data-view="form">
+    <div class="wiz">
+      <form id="sppa" novalidate>
+        <p class="step">Langkah 2 dari 2 &middot; <span id="formName">Formulir</span></p>
+        <div id="formFields"></div>
+        <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn" type="submit">Simpan dan kirim ke penanggung</button>
+          <button class="btn ghost" type="button" data-go="baru">Kembali</button>
+        </div>
+      </form>
+      <div class="card quote">
+        <h2>Penawaran</h2>
+        <div id="qbody2"></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-view="detail">
+    <div class="note" id="justSaved" hidden>Order terkirim ke penanggung. Formulir dan versi wording ikut tersimpan.</div>
+    <div class="det" style="margin-top:22px">
+      <nav class="rail" aria-label="Tahapan order">
+        <h2 class="step">Tahapan</h2>
+        <ol class="stages" id="rail"></ol>
+      </nav>
+      <div class="detmain">
+        <h2 class="step">Rincian</h2>
+        <dl class="facts" id="detFacts"></dl>
+        <section class="sec">
+          <h2>Dokumen</h2>
+          <div class="scroll"><table>
+            <thead><tr><th>Dokumen</th><th>Status</th><th class="num">Tanggal</th></tr></thead>
+            <tbody id="detDocs"></tbody>
+          </table></div>
+        </section>
+      </div>
+    </div>
+  </section>
+
   <section data-view="batas">
     <div class="card" style="padding:18px 20px;border-left:3px solid var(--warn);background:var(--warn-bg)">
       <p style="font-size:14px;max-width:72ch">Polis batal dengan sendirinya kalau premi lewat batas, tanpa surat pembatalan.
@@ -303,7 +409,6 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
     </table></div>
   </section>
 
-  <!-- ============ KOMISI ============ -->
   <section data-view="komisi">
     <div class="kpis">
       <div class="kpi"><div class="l">Potensial</div><div class="v tnum">8,4 jt</div><div class="c">order berjalan, belum pasti</div></div>
@@ -316,16 +421,15 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
       <div class="scroll"><table>
         <thead><tr><th>Order</th><th>Penanggung</th><th>Status komisi</th><th class="num">Rate</th><th class="num">Jumlah</th></tr></thead>
         <tbody>
-          <tr><td>ORD-2026-0137</td><td>Nusantara Jaya</td><td><span class="tag ok"><span class="d"></span>Sudah dibayar</span></td><td class="num">15%</td><td class="num">1.920.000</td></tr>
+          <tr><td>ORD-2026-0137</td><td>Asuransi Nusantara Jaya</td><td><span class="tag ok"><span class="d"></span>Sudah dibayar</span></td><td class="num">15%</td><td class="num">1.920.000</td></tr>
           <tr><td>ORD-2026-0133</td><td>Sentosa Jiwa</td><td><span class="tag go"><span class="d"></span>Terealisasi</span></td><td class="num">20%</td><td class="num">2.400.000</td></tr>
-          <tr><td>ORD-2026-0148</td><td>Nusantara Jaya</td><td><span class="tag"><span class="d"></span>Potensial</span></td><td class="num">15%</td><td class="num">1.260.000</td></tr>
+          <tr><td>ORD-2026-0148</td><td>Asuransi Nusantara Jaya</td><td><span class="tag"><span class="d"></span>Potensial</span></td><td class="num">15%</td><td class="num">1.260.000</td></tr>
           <tr><td>ORD-2026-0152</td><td>Sentosa Jiwa</td><td><span class="tag"><span class="d"></span>Potensial</span></td><td class="num">20%</td><td class="num">840.000</td></tr>
         </tbody>
       </table></div>
     </section>
   </section>
 
-  <!-- ============ MASTER DATA ============ -->
   <section data-view="master">
     <p style="max-width:72ch;color:var(--abu);font-size:14px">Kolom di kanan menentukan langkah mana yang menyala di alur order.
     Menambah produk baru cukup mengisi baris di sini, tidak perlu mengubah alurnya.</p>
@@ -335,14 +439,13 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
     </table></div>
   </section>
 
-  <!-- ============ AUDIT ============ -->
   <section data-view="audit">
     <p style="max-width:72ch;color:var(--abu);font-size:14px">Angka komisi yang tampil di layar saat admin memilih produk ikut disimpan,
     bukan hanya produk yang akhirnya dipilih.</p>
-    <ol class="log" style="margin-top:20px">
-      <li><time>12 Okt 09:14</time><div class="a">Rina mencatat pembayaran premi ORD-2026-0137<em>polis aktif, komisi 1.920.000 jadi terealisasi</em></div></li>
+    <ol class="log" id="logList" style="margin-top:20px">
+      <li><time>12 Okt 09:14</time><div class="a">Budi mencatat pembayaran premi ORD-2026-0137<em>polis aktif, komisi 1.920.000 jadi terealisasi</em></div></li>
       <li><time>12 Okt 08:02</time><div class="a">Sistem menandai 3 order mendekati batas bayar<em>pemeriksaan harian, 05:00 WIB</em></div></li>
-      <li><time>11 Okt 16:47</time><div class="a">Rina membuka penawaran ORD-2026-0152<em>2 produk ditampilkan &middot; komisi 840.000 dan 1.050.000</em></div></li>
+      <li><time>11 Okt 16:47</time><div class="a">Budi membuka penawaran ORD-2026-0152<em>2 produk ditampilkan &middot; komisi 840.000 dan 1.050.000</em></div></li>
       <li><time>11 Okt 15:20</time><div class="a">Cover note CN-2026-1187 diunggah untuk ORD-2026-0148<em>berlaku sampai 31 Okt 2026</em></div></li>
       <li><time>10 Okt 11:05</time><div class="a">Dimas mengubah rate komisi Property All Risk<em>dari 12% jadi 15%, berlaku untuk order baru</em></div></li>
     </ol>
@@ -357,31 +460,36 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
   'use strict';
 
   var INS = [
-    {id:'nj', nm:'PT Asuransi Nusantara Jaya', ds:'Asuransi umum', pc:'4 produk'},
-    {id:'sj', nm:'PT Sentosa Jiwa',           ds:'Jiwa dan kesehatan', pc:'3 produk'}
+    {id:'nj', nm:'PT Asuransi Nusantara Jaya',  ds:'Asuransi umum'},
+    {id:'bm', nm:'PT Asuransi Bintang Mandiri', ds:'Asuransi umum'},
+    {id:'am', nm:'PT Artha Marine Insurance',   ds:'Asuransi umum, pengangkutan'},
+    {id:'gp', nm:'PT Griya Proteksi Syariah',   ds:'Asuransi umum syariah'},
+    {id:'sj', nm:'PT Sentosa Jiwa',             ds:'Jiwa dan kesehatan'},
+    {id:'ck', nm:'PT Cakrawala Kesehatan',      ds:'Kesehatan'}
   ];
 
-  /* Konfigurasi produk menentukan langkah mana yang aktif di alur order. */
   var PRD = [
-    {id:'car', ins:'nj', nm:"Contractor's All Risk", form:'SPPA', rate:0.0035, com:0.15,
-     survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
-    {id:'par', ins:'nj', nm:'Property All Risk',     form:'SPPA', rate:0.0021, com:0.15,
-     survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
-    {id:'mv',  ins:'nj', nm:'Kendaraan bermotor',    form:'SPPA', rate:0.0240, com:0.10,
-     survey:false, medis:false, cn:true,  batas:'PPW 30 hari'},
-    {id:'pa',  ins:'nj', nm:'Kecelakaan diri',       form:'SPPA', rate:0.0015, com:0.12,
-     survey:false, medis:false, cn:false, batas:'PPW 30 hari'},
-    {id:'tl',  ins:'sj', nm:'Jiwa berjangka 10 thn', form:'SPAJ', rate:0.0018, com:0.20,
-     survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
-    {id:'wl',  ins:'sj', nm:'Jiwa seumur hidup',     form:'SPAJ', rate:0.0052, com:0.25,
-     survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
-    {id:'hc',  ins:'sj', nm:'Kesehatan kumpulan',    form:'SPAK', rate:0.0090, com:0.15,
-     survey:false, medis:true,  cn:false, batas:'Masa tenggang 30 hari'}
+    {id:'car', ins:'nj', nm:"Contractor's All Risk", form:'SPPA', rate:0.0035, com:0.15, survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'par', ins:'nj', nm:'Property All Risk',     form:'SPPA', rate:0.0021, com:0.15, survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'mv',  ins:'nj', nm:'Kendaraan bermotor',    form:'SPPA', rate:0.0240, com:0.10, survey:false, medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'pa',  ins:'nj', nm:'Kecelakaan diri',       form:'SPPA', rate:0.0015, com:0.12, survey:false, medis:false, cn:false, batas:'PPW 30 hari'},
+    {id:'ear', ins:'bm', nm:'Erection All Risk',     form:'SPPA', rate:0.0031, com:0.15, survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'pl',  ins:'bm', nm:'Tanggung gugat publik', form:'SPPA', rate:0.0026, com:0.15, survey:false, medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'cgo', ins:'am', nm:'Pengangkutan barang',   form:'SPPA', rate:0.0018, com:0.12, survey:false, medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'hul', ins:'am', nm:'Rangka kapal',          form:'SPPA', rate:0.0075, com:0.10, survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'syp', ins:'gp', nm:'Properti syariah',      form:'SPPA', rate:0.0019, com:0.14, survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'tl',  ins:'sj', nm:'Jiwa berjangka 10 thn', form:'SPAJ', rate:0.0018, com:0.20, survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
+    {id:'wl',  ins:'sj', nm:'Jiwa seumur hidup',     form:'SPAJ', rate:0.0052, com:0.25, survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
+    {id:'hc',  ins:'sj', nm:'Kesehatan kumpulan',    form:'SPAK', rate:0.0090, com:0.15, survey:false, medis:true,  cn:false, batas:'Masa tenggang 30 hari'},
+    {id:'hi',  ins:'ck', nm:'Kesehatan perorangan',  form:'SPAK', rate:0.0110, com:0.18, survey:false, medis:true,  cn:false, batas:'Masa tenggang 30 hari'}
   ];
 
   var TITLES = {
     beranda:['Beranda','Ringkasan hari ini, Senin 12 Oktober 2026'],
     order:  ['Order','14 order berjalan'],
+    baru:   ['Order baru','Cari penanggung, pilih produk, premi dan komisi muncul otomatis'],
+    form:   ['Formulir pengajuan','Isi data nasabah dan objek pertanggungan'],
+    detail: ['Detail order','Tahapan, rincian, dan dokumen'],
     batas:  ['Batas bayar premi','3 order perlu ditagih pekan ini'],
     komisi: ['Komisi','Potensial, terealisasi, dan yang sudah dibayar penanggung'],
     master: ['Master data','Penanggung, produk, tarif, dan konfigurasi langkah'],
@@ -389,25 +497,25 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
   };
 
   var rp = function(n){ return n.toLocaleString('id-ID'); };
-  var $  = function(s){ return document.querySelector(s); };
+  var $ = function(s){ return document.querySelector(s); };
+  var byId = function(a, id){ return a.filter(function(x){ return x.id === id; })[0]; };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
-  /* ---------- navigasi ---------- */
   function go(v){
+    if (!TITLES[v]) return;
     document.querySelectorAll('[data-view]').forEach(function(s){
-      s.classList.toggle('on', s.getAttribute('data-view') === v);
-    });
+      s.classList.toggle('on', s.getAttribute('data-view') === v); });
     document.querySelectorAll('.navb').forEach(function(b){
       if (b.getAttribute('data-go') === v) b.setAttribute('aria-current','page');
-      else b.removeAttribute('aria-current');
-    });
+      else b.removeAttribute('aria-current'); });
     $('#vt').textContent = TITLES[v][0];
     $('#vs').textContent = TITLES[v][1];
     window.scrollTo(0,0);
   }
-  /* ---------- drawer ---------- */
+
   var side = $('#side'), scrim = $('#scrim'), burger = $('#burger'),
       icO = $('#ic-open'), icC = $('#ic-close');
-
   function drawer(open){
     side.classList.toggle('open', open);
     scrim.classList.toggle('on', open);
@@ -418,24 +526,19 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
     document.body.style.overflow = open ? 'hidden' : '';
   }
   var isMobile = function(){ return window.matchMedia('(max-width:880px)').matches; };
-
-  burger.addEventListener('click', function(){
-    drawer(!side.classList.contains('open'));
-  });
+  burger.addEventListener('click', function(){ drawer(!side.classList.contains('open')); });
   scrim.addEventListener('click', function(){ drawer(false); burger.focus(); });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && side.classList.contains('open')){ drawer(false); burger.focus(); }
-  });
+    if (e.key === 'Escape' && side.classList.contains('open')){ drawer(false); burger.focus(); } });
   window.addEventListener('resize', function(){ if (!isMobile()) drawer(false); });
-
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-go]');
     if (!b) return;
+    e.preventDefault();
     go(b.getAttribute('data-go'));
     if (isMobile() && side.contains(b)) drawer(false);
   });
 
-  /* ---------- master data ---------- */
   var mt = $('#mt');
   PRD.forEach(function(p){
     var steps = [];
@@ -444,90 +547,222 @@ ol.log{list-style:none;border-top:1px solid var(--rule)}
     if (p.cn)     steps.push('cover note');
     steps.push(p.batas.toLowerCase());
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + p.nm + '</td>'
-      + '<td>' + (p.ins === 'nj' ? 'Nusantara Jaya' : 'Sentosa Jiwa') + '</td>'
+    tr.innerHTML = '<td>' + esc(p.nm) + '</td><td>' + esc(byId(INS, p.ins).nm) + '</td>'
       + '<td><span class="tag"><span class="d"></span>' + p.form + '</span></td>'
-      + '<td class="num">' + (p.rate * 100).toFixed(2).replace('.', ',') + '%</td>'
-      + '<td class="num">' + (p.com * 100) + '%</td>'
+      + '<td class="num">' + (p.rate*100).toFixed(2).replace('.',',') + '%</td>'
+      + '<td class="num">' + (p.com*100) + '%</td>'
       + '<td>' + steps.map(function(s){ return '<span class="tag">' + s + '</span>'; }).join(' ') + '</td>';
     mt.appendChild(tr);
   });
 
-  /* ---------- wizard ---------- */
-  var insUl = $('#ins'), prdUl = $('#prd'), ni = $('#ni'), q = $('#qbody'), next = $('#next');
   var pickedIns = null, pickedPrd = null;
+  var q = $('#insq'), list = $('#inslist'), clr = $('#insclr'),
+      comboWrap = $('#comboWrap'), pickedBox = $('#insPicked'), hi = -1, shown = [];
 
-  INS.forEach(function(i){
-    var li = document.createElement('li');
-    li.innerHTML = '<label><input type="radio" name="ins" value="' + i.id + '">'
-      + '<span><span class="nm">' + i.nm + '</span>'
-      + '<span class="ds"><span>' + i.ds + '</span><span>' + i.pc + '</span></span></span></label>';
-    insUl.appendChild(li);
-  });
-
-  function drawProducts(){
-    prdUl.innerHTML = '';
-    var list = PRD.filter(function(p){ return p.ins === pickedIns; });
-    if (!list.length){
-      prdUl.innerHTML = '<li><p class="empty" style="border:1px solid var(--rule);background:var(--putih)">Pilih penanggung lebih dulu.</p></li>';
-      return;
-    }
-    list.forEach(function(p){
-      var li = document.createElement('li');
-      li.innerHTML = '<label><input type="radio" name="prd" value="' + p.id + '">'
-        + '<span><span class="nm">' + p.nm + '</span>'
-        + '<span class="ds"><span>' + p.form + '</span><span>rate '
-        + (p.rate * 100).toFixed(2).replace('.', ',') + '%</span><span>komisi '
-        + (p.com * 100) + '%</span></span></span></label>';
-      prdUl.appendChild(li);
+  function openList(items){
+    shown = items; hi = -1;
+    list.innerHTML = items.length
+      ? items.map(function(i,n){
+          return '<li id="op'+n+'" role="option" aria-selected="false" data-id="'+i.id+'">'
+            + '<div class="nm">'+esc(i.nm)+'</div><div class="ds">'+esc(i.ds)+'</div></li>'; }).join('')
+      : '<li class="none">Tidak ada perusahaan yang cocok.</li>';
+    list.hidden = false;
+    q.setAttribute('aria-expanded','true');
+  }
+  function closeList(){
+    list.hidden = true; q.setAttribute('aria-expanded','false');
+    q.removeAttribute('aria-activedescendant'); hi = -1;
+  }
+  function search(){
+    var t = q.value.trim().toLowerCase();
+    openList(INS.filter(function(i){ return !t || (i.nm+' '+i.ds).toLowerCase().indexOf(t) > -1; }));
+    clr.hidden = !q.value;
+  }
+  function move(d){
+    if (list.hidden || !shown.length) return;
+    hi = (hi + d + shown.length) % shown.length;
+    Array.prototype.forEach.call(list.children, function(li,n){
+      li.classList.toggle('hi', n === hi);
+      li.setAttribute('aria-selected', String(n === hi)); });
+    q.setAttribute('aria-activedescendant','op'+hi);
+    list.children[hi].scrollIntoView({block:'nearest'});
+  }
+  function choose(id){
+    pickedIns = id; pickedPrd = null;
+    var i = byId(INS, id);
+    comboWrap.hidden = true;
+    pickedBox.innerHTML = '<div class="chosen"><div><div class="nm">'+esc(i.nm)+'</div>'
+      + '<div class="ds">'+esc(i.ds)+'</div></div>'
+      + '<button type="button" id="insChange">Ganti</button></div>';
+    $('#insChange').addEventListener('click', function(){
+      pickedIns = null; pickedPrd = null; pickedBox.innerHTML = '';
+      comboWrap.hidden = false; q.value = ''; clr.hidden = true;
+      drawProducts(); draw(); q.focus();
     });
+    closeList(); drawProducts(); draw();
   }
+  q.addEventListener('input', search);
+  q.addEventListener('focus', search);
+  clr.addEventListener('click', function(){ q.value=''; search(); q.focus(); });
+  q.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown'){ e.preventDefault(); if (list.hidden) search(); else move(1); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); move(-1); }
+    else if (e.key === 'Enter' && hi > -1){ e.preventDefault(); choose(shown[hi].id); }
+    else if (e.key === 'Escape'){ closeList(); }
+  });
+  list.addEventListener('mousedown', function(e){
+    var li = e.target.closest('li[data-id]');
+    if (li){ e.preventDefault(); choose(li.getAttribute('data-id')); }
+  });
+  document.addEventListener('click', function(e){ if (!e.target.closest('.combo')) closeList(); });
 
-  function money(){
-    var v = parseInt((ni.value || '').replace(/\D/g, ''), 10);
-    return isNaN(v) ? 0 : v;
-  }
-
-  function draw(){
-    if (!pickedPrd){
-      q.innerHTML = '<p class="empty">Pilih penanggung dan produk untuk melihat premi dan komisi.</p>';
-      next.disabled = true;
+  var prdUl = $('#prd'), ni = $('#ni'), qb = $('#qbody'), next = $('#next');
+  function drawProducts(){
+    if (!pickedIns){
+      prdUl.innerHTML = '<li><p class="empty" style="border:1px solid var(--rule);background:var(--putih)">Pilih perusahaan asuransi lebih dulu.</p></li>';
       return;
     }
-    var p = PRD.filter(function(x){ return x.id === pickedPrd; })[0];
-    var si = money(), premi = Math.round(si * p.rate), total = premi + 60000,
-        komisi = Math.round(premi * p.com);
-    var flags = [];
-    if (p.survey) flags.push('survei risiko');
-    if (p.medis)  flags.push('cek medis');
-    flags.push(p.cn ? 'pakai cover note' : 'langsung polis');
-    flags.push(p.batas);
+    prdUl.innerHTML = PRD.filter(function(p){ return p.ins === pickedIns; }).map(function(p){
+      return '<li><label><input type="radio" name="prd" value="'+p.id+'">'
+        + '<span><span class="nm">'+esc(p.nm)+'</span><span class="ds">'
+        + '<span>'+p.form+'</span><span>rate '+(p.rate*100).toFixed(2).replace('.',',')+'%</span>'
+        + '<span>komisi '+(p.com*100)+'%</span></span></span></label></li>'; }).join('');
+  }
+  prdUl.addEventListener('change', function(e){ pickedPrd = e.target.value; draw(); });
 
-    q.innerHTML =
-      '<div class="row"><span>Nilai pertanggungan</span><span class="tnum">' + rp(si) + '</span></div>'
-    + '<div class="row"><span>Premi dasar<br><small class="mono" style="color:var(--abu);font-size:11px">rate '
-      + (p.rate * 100).toFixed(2).replace('.', ',') + '%</small></span><span class="tnum">' + rp(premi) + '</span></div>'
-    + '<div class="row"><span>Biaya polis dan meterai</span><span class="tnum">60.000</span></div>'
-    + '<div class="tot"><span>Total premi</span><b class="tnum">Rp ' + rp(total) + '</b></div>'
-    + '<div class="com"><div class="k"><span class="eyebrow">Komisi agen</span>'
-      + '<b class="tnum">Rp ' + rp(komisi) + '</b></div>'
-      + '<small>' + (p.com * 100) + '% dari premi dasar &middot; tercatat sebagai potensial sampai premi lunas</small></div>'
-    + '<div class="flags">' + flags.map(function(f){
-        return '<span class="tag"><span class="d"></span>' + f + '</span>'; }).join('') + '</div>';
+  function money(){ var v = parseInt((ni.value||'').replace(/\D/g,''),10); return isNaN(v)?0:v; }
+  function calc(){
+    var p = byId(PRD, pickedPrd), si = money(), premi = Math.round(si * p.rate);
+    return {p:p, si:si, premi:premi, total:premi+60000, komisi:Math.round(premi*p.com)};
+  }
+  function quoteHTML(){
+    var c = calc(), flags = [];
+    if (c.p.survey) flags.push('survei risiko');
+    if (c.p.medis)  flags.push('cek medis');
+    flags.push(c.p.cn ? 'pakai cover note' : 'langsung polis');
+    flags.push(c.p.batas);
+    return '<div class="row"><span>Nilai pertanggungan</span><span class="tnum">'+rp(c.si)+'</span></div>'
+      + '<div class="row"><span>Premi dasar<br><small class="mono" style="color:var(--abu);font-size:11px">rate '
+      + (c.p.rate*100).toFixed(2).replace('.',',')+'%</small></span><span class="tnum">'+rp(c.premi)+'</span></div>'
+      + '<div class="row"><span>Biaya polis dan meterai</span><span class="tnum">60.000</span></div>'
+      + '<div class="tot"><span>Total premi</span><b class="tnum">Rp '+rp(c.total)+'</b></div>'
+      + '<div class="com"><div class="k"><span class="eyebrow">Komisi agen</span>'
+      + '<b class="tnum">Rp '+rp(c.komisi)+'</b></div><small>'+(c.p.com*100)
+      + '% dari premi dasar &middot; tercatat sebagai potensial sampai premi lunas</small></div>'
+      + '<div class="flags">' + flags.map(function(f){
+          return '<span class="tag"><span class="d"></span>'+f+'</span>'; }).join('') + '</div>';
+  }
+  function draw(){
+    if (!pickedIns || !pickedPrd){
+      qb.innerHTML = '<p class="empty">Pilih perusahaan asuransi dan produk untuk melihat premi dan komisi.</p>';
+      next.disabled = true; return;
+    }
+    qb.innerHTML = quoteHTML();
     next.disabled = false;
   }
-
-  insUl.addEventListener('change', function(e){
-    pickedIns = e.target.value; pickedPrd = null; drawProducts(); draw();
-  });
-  prdUl.addEventListener('change', function(e){ pickedPrd = e.target.value; draw(); });
   ni.addEventListener('input', function(){
-    var v = money();
-    ni.value = v ? rp(v) : '';
-    draw();
+    var v = money(); ni.value = v ? rp(v) : '';
+    if (pickedPrd) draw();
+  });
+
+  var FORMS = {
+    SPPA: [
+      ['Pemegang polis', [['nama','Nama pemegang polis',1],['npwp','NPWP atau NIK',1],['kontak','Telepon atau WhatsApp',1]]],
+      ['Objek pertanggungan', [['objek','Keterangan objek',1],['alamat','Alamat lokasi',1],['mulai','Mulai berlaku',1,'date'],['akhir','Berakhir',1,'date']]]
+    ],
+    SPAJ: [
+      ['Calon tertanggung', [['nama','Nama lengkap',1],['lahir','Tanggal lahir',1,'date'],['kerja','Pekerjaan',1],['kontak','Telepon atau WhatsApp',1]]],
+      ['Ahli waris dan kesehatan', [['waris','Nama ahli waris',1],['hub','Hubungan dengan tertanggung',1],['riwayat','Riwayat penyakit yang pernah didiagnosis',0],['mulai','Mulai berlaku',1,'date']]]
+    ],
+    SPAK: [
+      ['Pemegang polis', [['nama','Nama pemegang polis',1],['kontak','Telepon atau WhatsApp',1]]],
+      ['Peserta', [['jumlah','Jumlah peserta',1],['lahir','Tanggal lahir peserta utama',1,'date'],['riwayat','Riwayat penyakit yang pernah didiagnosis',0],['mulai','Mulai berlaku',1,'date']]]
+    ]
+  };
+
+  function buildForm(){
+    var p = byId(PRD, pickedPrd);
+    $('#formName').textContent = 'Formulir ' + p.form;
+    $('#qbody2').innerHTML = quoteHTML();
+    $('#formFields').innerHTML = FORMS[p.form].map(function(sec){
+      return '<div class="formsec"><h3 class="step">'+esc(sec[0])+'</h3>'
+        + sec[1].map(function(f){
+            return '<div class="field"><label for="f_'+f[0]+'">'+esc(f[1])
+              + (f[2] ? '' : ' (opsional)') + '</label>'
+              + '<input id="f_'+f[0]+'" name="'+f[0]+'" type="'+(f[3]||'text')+'"'
+              + (f[2] ? ' data-req="1"' : '') + '>'
+              + '<p class="err">Bagian ini harus diisi.</p></div>'; }).join('')
+        + '</div>'; }).join('');
+  }
+
+  next.addEventListener('click', function(){
+    if (!pickedPrd) return;
+    buildForm();
+    go('form');
+  });
+
+  var seq = 152;
+  $('#sppa').addEventListener('submit', function(e){
+    e.preventDefault();
+    var bad = null;
+    document.querySelectorAll('#formFields .field').forEach(function(fd){
+      var inp = fd.querySelector('input');
+      var empty = inp.hasAttribute('data-req') && !inp.value.trim();
+      fd.classList.toggle('bad', empty);
+      if (empty && !bad) bad = inp;
+    });
+    if (bad){ bad.focus(); return; }
+
+    var c = calc(), ins = byId(INS, pickedIns);
+    seq += 1;
+    var id = 'ORD-2026-0' + seq, nama = $('#f_nama').value.trim();
+
+    var st = [['done','Buat order','hari ini'],
+              ['done','Isi formulir ' + c.p.form,'hari ini'],
+              ['now','Cek lalu kirim','terkirim ke penanggung']];
+    if (c.p.survey) st.push(['wait','Survei risiko','dijadwalkan penanggung']);
+    if (c.p.medis)  st.push(['wait','Cek medis','dijadwalkan penanggung']);
+    st.push(['wait','Underwriting','menunggu keputusan']);
+    st.push([c.p.cn ? 'wait' : 'skip','Terbitkan cover note', c.p.cn ? 'menunggu' : 'tidak dipakai produk ini']);
+    st.push(['wait','Pantau batas bayar', c.p.batas]);
+    st.push(['wait','Terbitkan polis','menunggu premi lunas']);
+    st.push(['wait','Komisi tercatat','Rp ' + rp(c.komisi)]);
+    $('#rail').innerHTML = st.map(function(s){
+      return '<li class="'+s[0]+'"><span class="mark"></span><div><div class="t">'
+        + esc(s[1])+'</div><div class="s">'+esc(s[2])+'</div></div></li>'; }).join('');
+
+    var facts = [['Nomor order',id],['Nasabah',nama],['Penanggung',ins.nm],['Produk',c.p.nm],
+      ['Formulir',c.p.form],['Nilai pertanggungan','Rp '+rp(c.si)],['Total premi','Rp '+rp(c.total)],
+      ['Komisi (potensial)','Rp '+rp(c.komisi)],['Dasar batas bayar',c.p.batas],
+      ['Versi wording',c.p.id.toUpperCase()+'-2026.01']];
+    $('#detFacts').innerHTML = facts.map(function(f){
+      return '<div><dt>'+esc(f[0])+'</dt><dd>'+esc(f[1])+'</dd></div>'; }).join('');
+
+    var docs = [[c.p.form,'Terkirim','hari ini']];
+    if (c.p.cn) docs.push(['Cover note','Menunggu penanggung','&mdash;']);
+    docs.push(['Polis','Terbit setelah premi lunas','&mdash;']);
+    $('#detDocs').innerHTML = docs.map(function(d){
+      return '<tr><td>'+d[0]+'</td><td>'+d[1]+'</td><td class="num">'+d[2]+'</td></tr>'; }).join('');
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+id+'<span class="sub">'+esc(nama)+'</span></td>'
+      + '<td>'+esc(ins.nm.replace(/^PT\s+/,''))+'<span class="sub">'+esc(c.p.nm)+'</span></td>'
+      + '<td><span class="tag go"><span class="d"></span>Terkirim</span></td>'
+      + '<td class="num">'+rp(c.total)+'</td><td class="num">'+rp(c.komisi)+'</td>'
+      + '<td class="num">&mdash;</td>';
+    $('#ordrows').insertBefore(tr, $('#ordrows').firstChild);
+
+    var li = document.createElement('li');
+    li.innerHTML = '<time>hari ini</time><div class="a">Budi membuat '+id
+      + '<em>'+esc(c.p.nm)+' &middot; komisi potensial '+rp(c.komisi)+'</em></div>';
+    $('#logList').insertBefore(li, $('#logList').firstChild);
+
+    $('#justSaved').hidden = false;
+    go('detail');
   });
 
   drawProducts();
+  draw();
 })();
 </script>
 </body>
