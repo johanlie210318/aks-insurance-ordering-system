@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin — Sistem Pemesanan Asuransi AKS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#013589; --teal:#00A796; --midnight:#011E4A;
+  --kabut:#EEF1F5; --putih:#FBFCFD; --abu:#6B7A90;
+  --rule:rgba(1,53,137,.15); --rule2:rgba(1,53,137,.3);
+  --warn:#B4531B; --warn-bg:rgba(180,83,27,.09);
+  --display:'Sora',system-ui,sans-serif;
+  --body:'Instrument Sans',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-size:15px;
+     line-height:1.55;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+.tnum{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+
+/* ---------------- layout ---------------- */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--midnight);color:var(--putih);display:flex;flex-direction:column;
+      position:sticky;top:0;height:100vh}
+.side .brand{display:flex;align-items:center;gap:10px;padding:18px 20px;text-decoration:none;
+             border-bottom:1px solid rgba(255,255,255,.12);color:var(--putih);flex:none}
+.side .brand img{height:30px;width:auto;display:block}
+.side .brand .wm{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.side .brand .wm i{font-style:normal;color:var(--teal)}
+.side .brand .sub{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+             color:rgba(251,252,253,.45);display:block;margin-top:3px}
+.side nav{padding:14px 0;flex:1;min-height:0;overflow-y:auto}
+.side .grp{padding:14px 22px 6px;color:rgba(251,252,253,.4)}
+.navb{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+      background:none;border:0;border-left:3px solid transparent;color:rgba(251,252,253,.78);
+      font-family:var(--body);font-size:14px;text-align:left;padding:9px 22px;cursor:pointer}
+.navb:hover{color:var(--putih);background:rgba(255,255,255,.05)}
+.navb[aria-current="page"]{color:var(--putih);border-left-color:var(--teal);
+      background:rgba(0,167,150,.12);font-weight:600}
+.navb b{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--teal)}
+.side .me{border-top:1px solid rgba(255,255,255,.12);padding:16px 22px;display:flex;
+          align-items:center;gap:11px}
+.side .me .av{width:30px;height:30px;background:var(--teal);color:var(--midnight);display:grid;
+              place-items:center;font-family:var(--mono);font-size:11px;flex:none}
+.side .me .n{font-size:13px}
+.side .me .r{font-family:var(--mono);font-size:11px;color:rgba(251,252,253,.5)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.bar{background:var(--putih);border-bottom:1px solid var(--rule);padding:18px 32px;
+     display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.bar h1{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:-.02em;
+        color:var(--navy)}
+.bar p{color:var(--abu);font-size:13px;margin-top:2px}
+.wrap{padding:28px 32px 60px;max-width:1160px}
+[data-view]{display:none}
+[data-view].on{display:block}
+
+/* ---------------- primitives ---------------- */
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+     padding:12px 22px;border:2px solid var(--navy);background:var(--navy);color:var(--putih);
+     cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--teal);border-color:var(--teal)}
+.btn.ghost{background:transparent;color:var(--navy)}
+.btn.ghost:hover{background:var(--navy);color:var(--putih)}
+.btn:disabled{border-color:var(--rule);background:transparent;color:var(--abu);cursor:not-allowed}
+.card{background:var(--putih);border:1px solid var(--rule)}
+.card>h2,.sec>h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+                 color:var(--abu);font-weight:400}
+.card>h2{padding:16px 20px;border-bottom:1px solid var(--rule)}
+.sec{margin-top:34px}
+.sec>h2{margin-bottom:14px}
+.tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;
+     letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--rule2);
+     color:var(--abu);white-space:nowrap}
+.tag .d{width:6px;height:6px;flex:none;background:var(--abu)}
+.tag.ok{border-color:var(--teal);color:var(--midnight)} .tag.ok .d{background:var(--teal)}
+.tag.go{border-color:var(--navy);color:var(--navy)} .tag.go .d{background:var(--navy)}
+.tag.hot{border-color:var(--warn);color:var(--warn);background:var(--warn-bg)} .tag.hot .d{background:var(--warn)}
+
+table{width:100%;border-collapse:collapse;background:var(--putih)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+   color:var(--abu);font-weight:400;text-align:left;padding:11px 16px;
+   border-bottom:1px solid var(--rule2)}
+td{padding:13px 16px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+td .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:2px}
+tbody tr:hover{background:rgba(1,53,137,.03)}
+.scroll{overflow-x:auto;border:1px solid var(--rule)}
+.scroll table{min-width:760px}
+
+/* ---------------- dashboard ---------------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
+      background:var(--rule);border:1px solid var(--rule)}
+.kpi{background:var(--putih);padding:20px}
+.kpi .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--abu)}
+.kpi .v{font-family:var(--display);font-weight:700;font-size:2rem;letter-spacing:-.02em;
+        margin-top:10px;line-height:1;color:var(--navy)}
+.kpi .v.t{color:var(--teal)} .kpi .v.w{color:var(--warn)}
+.kpi .c{font-size:12.5px;color:var(--abu);margin-top:7px}
+
+/* ---------------- wizard ---------------- */
+.wiz{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+.pick{list-style:none}
+.pick li+li{margin-top:-1px}
+.pick label{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--rule);
+            background:var(--putih);padding:14px 16px;cursor:pointer}
+.pick input{margin-top:4px;accent-color:var(--navy);flex:none}
+.pick label:hover{border-color:var(--rule2)}
+.pick input:checked+span .nm{color:var(--navy);font-weight:600}
+.pick li:has(input:checked) label{border-color:var(--navy);background:rgba(1,53,137,.04);
+            position:relative;z-index:1}
+.pick .nm{font-size:14.5px}
+.pick .ds{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:3px;
+          display:flex;gap:14px;flex-wrap:wrap}
+.field{margin-top:22px}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+             text-transform:uppercase;color:var(--abu);margin-bottom:7px}
+.field input{width:100%;max-width:340px;font-family:var(--mono);font-size:15px;padding:12px 14px;
+             border:1px solid var(--rule2);background:var(--putih);color:var(--midnight)}
+.field input:focus{border-color:var(--navy);outline:none}
+.quote{position:sticky;top:20px}
+.quote .row{display:flex;justify-content:space-between;gap:14px;padding:11px 20px;
+            border-bottom:1px solid var(--rule);font-size:14px}
+.quote .row span:last-child{font-family:var(--mono)}
+.quote .tot{padding:16px 20px;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+.quote .tot b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--navy);
+              letter-spacing:-.02em}
+.quote .com{background:rgba(0,167,150,.08);border-top:1px solid var(--rule);padding:16px 20px}
+.quote .com .k{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+.quote .com b{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--teal);
+              letter-spacing:-.02em}
+.quote .com small{display:block;font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:5px}
+.flags{display:flex;flex-wrap:wrap;gap:7px;padding:16px 20px;border-top:1px solid var(--rule)}
+.empty{padding:22px 20px;color:var(--abu);font-size:14px}
+
+/* ---------------- audit ---------------- */
+ol.log{list-style:none;border-top:1px solid var(--rule)}
+.log li{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:13px 0;
+        border-bottom:1px solid var(--rule)}
+.log time{font-family:var(--mono);font-size:11.5px;color:var(--abu)}
+.log .a{font-size:14px}
+.log .a em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--abu);
+           display:block;margin-top:2px}
+
+@media (max-width:1020px){ .wiz{grid-template-columns:1fr} .quote{position:static} }
+
+/* ---------------- burger drawer ---------------- */
+.burger{display:none;align-items:center;justify-content:center;width:42px;height:42px;
+        margin-left:-10px;border:0;background:none;color:var(--navy);cursor:pointer;flex:none}
+.burger svg{width:24px;height:24px}
+.scrim{display:none}
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:0;left:0;bottom:0;width:270px;height:100dvh;z-index:60;
+        transform:translateX(-100%);transition:transform .22s ease}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(1,30,74,.001)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(1,30,74,.55);z-index:50;
+         opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s}
+  .scrim.on{opacity:1;visibility:visible}
+  .burger{display:inline-flex}
+  .bar{padding:14px 18px;gap:12px}
+  .bar .lead{display:flex;align-items:center;gap:6px;min-width:0}
+  .bar h1{font-size:1.15rem}
+  .bar p{display:none}
+  .bar .btn{padding:11px 16px}
+  .wrap{padding:22px 18px 56px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi{padding:16px}
+  .kpi .v{font-size:1.6rem}
+  .log li{grid-template-columns:1fr;gap:4px}
+  .log time{order:2}
+}
+@media (max-width:480px){ .kpis{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ .side,.scrim{transition:none} }
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim" hidden></div>
+<div class="app">
+
+<aside class="side" id="side">
+  <a class="brand" href="#" data-go="beranda">
+    <img src="logo-aks-white.png" alt="" onerror="this.remove()">
+    </span><span class="sub">Ordering System</span></span>
+  </a>
+  <nav aria-label="Menu utama">
+    <p class="grp eyebrow">Operasional</p>
+    <button class="navb" data-go="beranda" aria-current="page">Beranda <b>6</b></button>
+    <button class="navb" data-go="order">Order</button>
+    <button class="navb" data-go="baru">Order baru</button>
+    <button class="navb" data-go="batas">Batas bayar <b>3</b></button>
+    <p class="grp eyebrow">Keuangan</p>
+    <button class="navb" data-go="komisi">Komisi</button>
+    <p class="grp eyebrow">Pengaturan</p>
+    <button class="navb" data-go="master">Master data</button>
+    <button class="navb" data-go="audit">Jejak audit</button>
+  </nav>
+  <div class="me">
+    <span class="av" aria-hidden="true">BU</span>
+    <div><div class="n">Budi Utomo</div><div class="r">Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="bar">
+    <div class="lead">
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="side">
+        <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Menu</span>
+        <svg id="ic-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+        <svg id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="display:none"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+      </button>
+      <div><h1 id="vt">Beranda</h1><p id="vs">Ringkasan hari ini, Senin 12 Oktober 2026</p></div>
+    </div>
+    <button class="btn" data-go="baru">Buat order</button>
+  </div>
+
+  <div class="wrap">
+
+  <!-- ============ BERANDA ============ -->
+  <section data-view="beranda" class="on">
+    <div class="kpis">
+      <div class="kpi"><div class="l">Order berjalan</div><div class="v tnum">14</div><div class="c">4 menunggu underwriting</div></div>
+      <div class="kpi"><div class="l">Cover note aktif</div><div class="v tnum">6</div><div class="c">2 kedaluwarsa pekan ini</div></div>
+      <div class="kpi"><div class="l">Batas bayar dekat</div><div class="v w tnum">3</div><div class="c">kurang dari 7 hari</div></div>
+      <div class="kpi"><div class="l">Komisi belum cair</div><div class="v t tnum">8,4 jt</div><div class="c">dari 9 polis aktif</div></div>
+    </div>
+
+    <section class="sec">
+      <h2>Perlu tindakan</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Order</th><th>Nasabah</th><th>Catatan</th><th class="num">Sisa waktu</th></tr></thead>
+        <tbody>
+          <tr><td>ORD-2026-0148<span class="sub">Contractor&rsquo;s All Risk</span></td><td>PT Karya Bangun Sejahtera</td><td>Premi belum lunas, polis belum terbit</td><td class="num"><span class="tag hot"><span class="d"></span>2 hari</span></td></tr>
+          <tr><td>ORD-2026-0141<span class="sub">Property All Risk</span></td><td>Toko Sumber Rejeki</td><td>Cover note habis sebelum polis terbit</td><td class="num"><span class="tag hot"><span class="d"></span>4 hari</span></td></tr>
+          <tr><td>ORD-2026-0152<span class="sub">Asuransi jiwa berjangka</span></td><td>Bpk. Hendra Wijaya</td><td>Underwriter minta hasil cek medis</td><td class="num"><span class="tag"><span class="d"></span>6 hari</span></td></tr>
+          <tr><td>ORD-2026-0139<span class="sub">Kendaraan bermotor</span></td><td>CV Terang Abadi</td><td>SPPA ditolak, perlu produk pengganti</td><td class="num"><span class="tag"><span class="d"></span>&mdash;</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </section>
+
+  <!-- ============ ORDER ============ -->
+  <section data-view="order">
+    <div class="scroll"><table>
+      <thead><tr><th>Order</th><th>Penanggung</th><th>Tahap</th><th class="num">Premi</th><th class="num">Komisi</th><th class="num">Batas bayar</th></tr></thead>
+      <tbody>
+        <tr><td>ORD-2026-0148<span class="sub">PT Karya Bangun Sejahtera</span></td><td>Nusantara Jaya<span class="sub">Contractor&rsquo;s All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">8.460.000</td><td class="num">1.260.000</td><td class="num">31 Okt</td></tr>
+        <tr><td>ORD-2026-0152<span class="sub">Bpk. Hendra Wijaya</span></td><td>Sentosa Jiwa<span class="sub">Jiwa berjangka 10 thn</span></td><td><span class="tag go"><span class="d"></span>Underwriting</span></td><td class="num">4.200.000</td><td class="num">840.000</td><td class="num">&mdash;</td></tr>
+        <tr><td>ORD-2026-0141<span class="sub">Toko Sumber Rejeki</span></td><td>Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag ok"><span class="d"></span>Cover note aktif</span></td><td class="num">3.150.000</td><td class="num">472.500</td><td class="num">16 Okt</td></tr>
+        <tr><td>ORD-2026-0137<span class="sub">PT Griya Mandiri</span></td><td>Nusantara Jaya<span class="sub">Property All Risk</span></td><td><span class="tag"><span class="d"></span>Polis aktif</span></td><td class="num">12.800.000</td><td class="num">1.920.000</td><td class="num">lunas</td></tr>
+        <tr><td>ORD-2026-0139<span class="sub">CV Terang Abadi</span></td><td>Nusantara Jaya<span class="sub">Kendaraan bermotor</span></td><td><span class="tag"><span class="d"></span>Ditolak</span></td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ ORDER BARU ============ -->
+  <section data-view="baru">
+    <div class="wiz">
+      <div>
+        <h2 class="eyebrow" style="color:var(--abu)">1. Pilih penanggung</h2>
+        <ul class="pick" id="ins" style="margin-top:12px"></ul>
+
+        <h2 class="eyebrow" style="color:var(--abu);margin-top:30px">2. Pilih produk</h2>
+        <ul class="pick" id="prd" style="margin-top:12px"></ul>
+
+        <div class="field">
+          <label for="ni">Nilai pertanggungan (Rp)</label>
+          <input id="ni" class="tnum" type="text" inputmode="numeric" value="2.400.000.000">
+        </div>
+
+        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn" id="next" type="button" disabled>Lanjut ke formulir</button>
+          <button class="btn ghost" type="button" data-go="order">Batal</button>
+        </div>
+      </div>
+
+      <div class="card quote">
+        <h2>Penawaran</h2>
+        <div id="qbody"><p class="empty">Pilih penanggung dan produk untuk melihat premi dan komisi.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BATAS BAYAR ============ -->
+  <section data-view="batas">
+    <div class="card" style="padding:18px 20px;border-left:3px solid var(--warn);background:var(--warn-bg)">
+      <p style="font-size:14px;max-width:72ch">Polis batal dengan sendirinya kalau premi lewat batas, tanpa surat pembatalan.
+      Daftar ini dihitung ulang otomatis tiap pagi, bukan diisi manual.</p>
+    </div>
+    <div class="scroll" style="margin-top:20px"><table>
+      <thead><tr><th>Order</th><th>Nasabah</th><th>Dasar batas</th><th class="num">Jatuh tempo</th><th class="num">Sisa</th></tr></thead>
+      <tbody>
+        <tr><td>ORD-2026-0148</td><td>PT Karya Bangun Sejahtera</td><td>PPW 30 hari<span class="sub">sejak 1 Okt 2026</span></td><td class="num">31 Okt</td><td class="num"><span class="tag hot"><span class="d"></span>2 hari</span></td></tr>
+        <tr><td>ORD-2026-0141</td><td>Toko Sumber Rejeki</td><td>PPW 30 hari<span class="sub">sejak 16 Sep 2026</span></td><td class="num">16 Okt</td><td class="num"><span class="tag hot"><span class="d"></span>4 hari</span></td></tr>
+        <tr><td>ORD-2026-0145</td><td>Bpk. Suryadi</td><td>Masa tenggang 45 hari<span class="sub">premi bulanan, jiwa</span></td><td class="num">24 Okt</td><td class="num"><span class="tag"><span class="d"></span>12 hari</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ KOMISI ============ -->
+  <section data-view="komisi">
+    <div class="kpis">
+      <div class="kpi"><div class="l">Potensial</div><div class="v tnum">8,4 jt</div><div class="c">order berjalan, belum pasti</div></div>
+      <div class="kpi"><div class="l">Terealisasi</div><div class="v t tnum">19,2 jt</div><div class="c">premi sudah lunas</div></div>
+      <div class="kpi"><div class="l">Sudah dibayar</div><div class="v tnum">14,6 jt</div><div class="c">diterima dari penanggung</div></div>
+      <div class="kpi"><div class="l">Selisih</div><div class="v w tnum">4,6 jt</div><div class="c">belum ditagihkan</div></div>
+    </div>
+    <section class="sec">
+      <h2>Rincian per order</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Order</th><th>Penanggung</th><th>Status komisi</th><th class="num">Rate</th><th class="num">Jumlah</th></tr></thead>
+        <tbody>
+          <tr><td>ORD-2026-0137</td><td>Nusantara Jaya</td><td><span class="tag ok"><span class="d"></span>Sudah dibayar</span></td><td class="num">15%</td><td class="num">1.920.000</td></tr>
+          <tr><td>ORD-2026-0133</td><td>Sentosa Jiwa</td><td><span class="tag go"><span class="d"></span>Terealisasi</span></td><td class="num">20%</td><td class="num">2.400.000</td></tr>
+          <tr><td>ORD-2026-0148</td><td>Nusantara Jaya</td><td><span class="tag"><span class="d"></span>Potensial</span></td><td class="num">15%</td><td class="num">1.260.000</td></tr>
+          <tr><td>ORD-2026-0152</td><td>Sentosa Jiwa</td><td><span class="tag"><span class="d"></span>Potensial</span></td><td class="num">20%</td><td class="num">840.000</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </section>
+
+  <!-- ============ MASTER DATA ============ -->
+  <section data-view="master">
+    <p style="max-width:72ch;color:var(--abu);font-size:14px">Kolom di kanan menentukan langkah mana yang menyala di alur order.
+    Menambah produk baru cukup mengisi baris di sini, tidak perlu mengubah alurnya.</p>
+    <div class="scroll" style="margin-top:20px"><table>
+      <thead><tr><th>Produk</th><th>Penanggung</th><th>Formulir</th><th class="num">Rate premi</th><th class="num">Komisi</th><th>Langkah aktif</th></tr></thead>
+      <tbody id="mt"></tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ AUDIT ============ -->
+  <section data-view="audit">
+    <p style="max-width:72ch;color:var(--abu);font-size:14px">Angka komisi yang tampil di layar saat admin memilih produk ikut disimpan,
+    bukan hanya produk yang akhirnya dipilih.</p>
+    <ol class="log" style="margin-top:20px">
+      <li><time>12 Okt 09:14</time><div class="a">Rina mencatat pembayaran premi ORD-2026-0137<em>polis aktif, komisi 1.920.000 jadi terealisasi</em></div></li>
+      <li><time>12 Okt 08:02</time><div class="a">Sistem menandai 3 order mendekati batas bayar<em>pemeriksaan harian, 05:00 WIB</em></div></li>
+      <li><time>11 Okt 16:47</time><div class="a">Rina membuka penawaran ORD-2026-0152<em>2 produk ditampilkan &middot; komisi 840.000 dan 1.050.000</em></div></li>
+      <li><time>11 Okt 15:20</time><div class="a">Cover note CN-2026-1187 diunggah untuk ORD-2026-0148<em>berlaku sampai 31 Okt 2026</em></div></li>
+      <li><time>10 Okt 11:05</time><div class="a">Dimas mengubah rate komisi Property All Risk<em>dari 12% jadi 15%, berlaku untuk order baru</em></div></li>
+    </ol>
+  </section>
+
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var INS = [
+    {id:'nj', nm:'PT Asuransi Nusantara Jaya', ds:'Asuransi umum', pc:'4 produk'},
+    {id:'sj', nm:'PT Sentosa Jiwa',           ds:'Jiwa dan kesehatan', pc:'3 produk'}
+  ];
+
+  /* Konfigurasi produk menentukan langkah mana yang aktif di alur order. */
+  var PRD = [
+    {id:'car', ins:'nj', nm:"Contractor's All Risk", form:'SPPA', rate:0.0035, com:0.15,
+     survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'par', ins:'nj', nm:'Property All Risk',     form:'SPPA', rate:0.0021, com:0.15,
+     survey:true,  medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'mv',  ins:'nj', nm:'Kendaraan bermotor',    form:'SPPA', rate:0.0240, com:0.10,
+     survey:false, medis:false, cn:true,  batas:'PPW 30 hari'},
+    {id:'pa',  ins:'nj', nm:'Kecelakaan diri',       form:'SPPA', rate:0.0015, com:0.12,
+     survey:false, medis:false, cn:false, batas:'PPW 30 hari'},
+    {id:'tl',  ins:'sj', nm:'Jiwa berjangka 10 thn', form:'SPAJ', rate:0.0018, com:0.20,
+     survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
+    {id:'wl',  ins:'sj', nm:'Jiwa seumur hidup',     form:'SPAJ', rate:0.0052, com:0.25,
+     survey:false, medis:true,  cn:false, batas:'Masa tenggang 45 hari'},
+    {id:'hc',  ins:'sj', nm:'Kesehatan kumpulan',    form:'SPAK', rate:0.0090, com:0.15,
+     survey:false, medis:true,  cn:false, batas:'Masa tenggang 30 hari'}
+  ];
+
+  var TITLES = {
+    beranda:['Beranda','Ringkasan hari ini, Senin 12 Oktober 2026'],
+    order:  ['Order','14 order berjalan'],
+    baru:   ['Order baru','Pilih penanggung dan produknya, premi dan komisi muncul otomatis'],
+    batas:  ['Batas bayar premi','3 order perlu ditagih pekan ini'],
+    komisi: ['Komisi','Potensial, terealisasi, dan yang sudah dibayar penanggung'],
+    master: ['Master data','Penanggung, produk, tarif, dan konfigurasi langkah'],
+    audit:  ['Jejak audit','Semua tindakan admin dan sistem terekam']
+  };
+
+  var rp = function(n){ return n.toLocaleString('id-ID'); };
+  var $  = function(s){ return document.querySelector(s); };
+
+  /* ---------- navigasi ---------- */
+  function go(v){
+    document.querySelectorAll('[data-view]').forEach(function(s){
+      s.classList.toggle('on', s.getAttribute('data-view') === v);
+    });
+    document.querySelectorAll('.navb').forEach(function(b){
+      if (b.getAttribute('data-go') === v) b.setAttribute('aria-current','page');
+      else b.removeAttribute('aria-current');
+    });
+    $('#vt').textContent = TITLES[v][0];
+    $('#vs').textContent = TITLES[v][1];
+    window.scrollTo(0,0);
+  }
+  /* ---------- drawer ---------- */
+  var side = $('#side'), scrim = $('#scrim'), burger = $('#burger'),
+      icO = $('#ic-open'), icC = $('#ic-close');
+
+  function drawer(open){
+    side.classList.toggle('open', open);
+    scrim.classList.toggle('on', open);
+    scrim.hidden = !open;
+    burger.setAttribute('aria-expanded', String(open));
+    icO.style.display = open ? 'none' : '';
+    icC.style.display = open ? '' : 'none';
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  var isMobile = function(){ return window.matchMedia('(max-width:880px)').matches; };
+
+  burger.addEventListener('click', function(){
+    drawer(!side.classList.contains('open'));
+  });
+  scrim.addEventListener('click', function(){ drawer(false); burger.focus(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && side.classList.contains('open')){ drawer(false); burger.focus(); }
+  });
+  window.addEventListener('resize', function(){ if (!isMobile()) drawer(false); });
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-go]');
+    if (!b) return;
+    go(b.getAttribute('data-go'));
+    if (isMobile() && side.contains(b)) drawer(false);
+  });
+
+  /* ---------- master data ---------- */
+  var mt = $('#mt');
+  PRD.forEach(function(p){
+    var steps = [];
+    if (p.survey) steps.push('survei');
+    if (p.medis)  steps.push('cek medis');
+    if (p.cn)     steps.push('cover note');
+    steps.push(p.batas.toLowerCase());
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + p.nm + '</td>'
+      + '<td>' + (p.ins === 'nj' ? 'Nusantara Jaya' : 'Sentosa Jiwa') + '</td>'
+      + '<td><span class="tag"><span class="d"></span>' + p.form + '</span></td>'
+      + '<td class="num">' + (p.rate * 100).toFixed(2).replace('.', ',') + '%</td>'
+      + '<td class="num">' + (p.com * 100) + '%</td>'
+      + '<td>' + steps.map(function(s){ return '<span class="tag">' + s + '</span>'; }).join(' ') + '</td>';
+    mt.appendChild(tr);
+  });
+
+  /* ---------- wizard ---------- */
+  var insUl = $('#ins'), prdUl = $('#prd'), ni = $('#ni'), q = $('#qbody'), next = $('#next');
+  var pickedIns = null, pickedPrd = null;
+
+  INS.forEach(function(i){
+    var li = document.createElement('li');
+    li.innerHTML = '<label><input type="radio" name="ins" value="' + i.id + '">'
+      + '<span><span class="nm">' + i.nm + '</span>'
+      + '<span class="ds"><span>' + i.ds + '</span><span>' + i.pc + '</span></span></span></label>';
+    insUl.appendChild(li);
+  });
+
+  function drawProducts(){
+    prdUl.innerHTML = '';
+    var list = PRD.filter(function(p){ return p.ins === pickedIns; });
+    if (!list.length){
+      prdUl.innerHTML = '<li><p class="empty" style="border:1px solid var(--rule);background:var(--putih)">Pilih penanggung lebih dulu.</p></li>';
+      return;
+    }
+    list.forEach(function(p){
+      var li = document.createElement('li');
+      li.innerHTML = '<label><input type="radio" name="prd" value="' + p.id + '">'
+        + '<span><span class="nm">' + p.nm + '</span>'
+        + '<span class="ds"><span>' + p.form + '</span><span>rate '
+        + (p.rate * 100).toFixed(2).replace('.', ',') + '%</span><span>komisi '
+        + (p.com * 100) + '%</span></span></span></label>';
+      prdUl.appendChild(li);
+    });
+  }
+
+  function money(){
+    var v = parseInt((ni.value || '').replace(/\D/g, ''), 10);
+    return isNaN(v) ? 0 : v;
+  }
+
+  function draw(){
+    if (!pickedPrd){
+      q.innerHTML = '<p class="empty">Pilih penanggung dan produk untuk melihat premi dan komisi.</p>';
+      next.disabled = true;
+      return;
+    }
+    var p = PRD.filter(function(x){ return x.id === pickedPrd; })[0];
+    var si = money(), premi = Math.round(si * p.rate), total = premi + 60000,
+        komisi = Math.round(premi * p.com);
+    var flags = [];
+    if (p.survey) flags.push('survei risiko');
+    if (p.medis)  flags.push('cek medis');
+    flags.push(p.cn ? 'pakai cover note' : 'langsung polis');
+    flags.push(p.batas);
+
+    q.innerHTML =
+      '<div class="row"><span>Nilai pertanggungan</span><span class="tnum">' + rp(si) + '</span></div>'
+    + '<div class="row"><span>Premi dasar<br><small class="mono" style="color:var(--abu);font-size:11px">rate '
+      + (p.rate * 100).toFixed(2).replace('.', ',') + '%</small></span><span class="tnum">' + rp(premi) + '</span></div>'
+    + '<div class="row"><span>Biaya polis dan meterai</span><span class="tnum">60.000</span></div>'
+    + '<div class="tot"><span>Total premi</span><b class="tnum">Rp ' + rp(total) + '</b></div>'
+    + '<div class="com"><div class="k"><span class="eyebrow">Komisi agen</span>'
+      + '<b class="tnum">Rp ' + rp(komisi) + '</b></div>'
+      + '<small>' + (p.com * 100) + '% dari premi dasar &middot; tercatat sebagai potensial sampai premi lunas</small></div>'
+    + '<div class="flags">' + flags.map(function(f){
+        return '<span class="tag"><span class="d"></span>' + f + '</span>'; }).join('') + '</div>';
+    next.disabled = false;
+  }
+
+  insUl.addEventListener('change', function(e){
+    pickedIns = e.target.value; pickedPrd = null; drawProducts(); draw();
+  });
+  prdUl.addEventListener('change', function(e){ pickedPrd = e.target.value; draw(); });
+  ni.addEventListener('input', function(){
+    var v = money();
+    ni.value = v ? rp(v) : '';
+    draw();
+  });
+
+  drawProducts();
+})();
+</script>
+</body>
+</html>
