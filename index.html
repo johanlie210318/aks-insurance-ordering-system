@@ -6,23 +6,22 @@
 <title>Panel Admin — Sistem Pemesanan Asuransi AKS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --navy:#013589; --teal:#00A796; --midnight:#011E4A;
   --kabut:#EEF1F5; --putih:#FBFCFD; --abu:#6B7A90;
   --rule:rgba(1,53,137,.15); --rule2:rgba(1,53,137,.3);
   --warn:#B4531B; --warn-bg:rgba(180,83,27,.09); --err:#A32D2D;
-  --display:'Sora',system-ui,sans-serif;
-  --body:'Instrument Sans',system-ui,sans-serif;
-  --mono:'DM Mono',ui-monospace,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --display:var(--sans); --body:var(--sans); --mono:var(--sans);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-size:15px;
      line-height:1.55;-webkit-font-smoothing:antialiased}
 :focus-visible{outline:3px solid var(--teal);outline-offset:2px}
-.eyebrow,.step{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--abu)}
-.tnum{font-variant-numeric:tabular-nums}
+.eyebrow,.step{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--abu)}
+.tnum,.mono,td.num,th.num,.stages .s,.log time{font-variant-numeric:tabular-nums}
 .mono{font-family:var(--mono)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
@@ -34,18 +33,18 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .side .brand img{height:30px;width:auto;display:block}
 .side .brand .wm{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em;display:block}
 .side .brand .wm i{font-style:normal;color:var(--teal)}
-.side .brand .sub{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+.side .brand .sub{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
       color:rgba(251,252,253,.45);display:block;margin-top:3px}
 .side nav{padding:14px 0;flex:1;min-height:0;overflow-y:auto}
 .side .grp{padding:14px 22px 6px;color:rgba(251,252,253,.4);font-family:var(--mono);font-size:11px;
-      letter-spacing:.15em;text-transform:uppercase}
+      letter-spacing:.07em;text-transform:uppercase}
 .navb{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;
       border:0;border-left:3px solid transparent;color:rgba(251,252,253,.78);font-family:var(--body);
       font-size:14px;text-align:left;padding:9px 22px;cursor:pointer}
 .navb:hover{color:var(--putih);background:rgba(255,255,255,.05)}
 .navb[aria-current="page"]{color:var(--putih);border-left-color:var(--teal);
       background:rgba(0,167,150,.12);font-weight:600}
-.navb b{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--teal)}
+.navb b{font-size:11px;font-weight:600;color:var(--teal);font-variant-numeric:tabular-nums}
 .side .me{border-top:1px solid rgba(255,255,255,.12);padding:16px 22px;display:flex;align-items:center;gap:11px}
 .side .me .av{width:30px;height:30px;background:var(--teal);color:var(--midnight);display:grid;
       place-items:center;font-family:var(--mono);font-size:11px;flex:none}
@@ -61,7 +60,7 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 [data-view]{display:none}
 [data-view].on{display:block}
 
-.btn{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:12px 22px;
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:12px 22px;
      border:2px solid var(--navy);background:var(--navy);color:var(--putih);cursor:pointer;
      transition:background .15s,border-color .15s}
 .btn:hover{background:var(--teal);border-color:var(--teal)}
@@ -72,17 +71,17 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .btn.danger:hover{background:var(--err);border-color:var(--err);color:var(--putih)}
 .btn:disabled{border-color:var(--rule);background:transparent;color:var(--abu);cursor:not-allowed}
 .lnk{border:0;background:none;color:var(--navy);cursor:pointer;font-family:var(--mono);font-size:11px;
-     letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid var(--teal);padding:0 0 2px}
+     letter-spacing:.07em;text-transform:uppercase;border-bottom:2px solid var(--teal);padding:0 0 2px}
 .lnk:hover{color:var(--teal)}
 .card{background:var(--putih);border:1px solid var(--rule)}
-.card>h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
-     color:var(--abu);font-weight:400;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.card>h2{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+     color:var(--abu);font-weight:600;padding:16px 20px;border-bottom:1px solid var(--rule)}
 .sec{margin-top:34px}
-.sec>h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
-     color:var(--abu);font-weight:400;margin-bottom:14px}
+.sec>h2{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+     color:var(--abu);font-weight:600;margin-bottom:14px}
 .rowhead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;
-     letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--rule2);
+.tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;font-weight:500;
+     letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--rule2);
      color:var(--abu);white-space:nowrap}
 .tag .d{width:6px;height:6px;flex:none;background:var(--abu)}
 .tag.ok{border-color:var(--teal);color:var(--midnight)} .tag.ok .d{background:var(--teal)}
@@ -91,8 +90,8 @@ body{background:var(--kabut);color:var(--midnight);font-family:var(--body);font-
 .tag.dead{border-color:var(--err);color:var(--err)} .tag.dead .d{background:var(--err)}
 
 table{width:100%;border-collapse:collapse;background:var(--putih)}
-th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--abu);
-   font-weight:400;text-align:left;padding:11px 16px;border-bottom:1px solid var(--rule2)}
+th{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--abu);
+   text-align:left;padding:11px 16px;border-bottom:1px solid var(--rule2)}
 td{padding:13px 16px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:middle}
 td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
 td.act,th.act{text-align:right;white-space:nowrap}
@@ -104,7 +103,7 @@ tbody tr:hover{background:rgba(1,53,137,.03)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
       background:var(--rule);border:1px solid var(--rule)}
 .kpi{background:var(--putih);padding:20px}
-.kpi .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--abu)}
+.kpi .l{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--abu)}
 .kpi .v{font-family:var(--display);font-weight:700;font-size:2rem;letter-spacing:-.02em;margin-top:10px;
         line-height:1;color:var(--navy)}
 .kpi .v.t{color:var(--teal)} .kpi .v.w{color:var(--warn)}
@@ -143,7 +142,7 @@ tbody tr:hover{background:rgba(1,53,137,.03)}
 .chosen .ds{font-family:var(--mono);font-size:11px;color:var(--abu);margin-top:2px}
 
 .field{margin-top:20px}
-.field>label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+.field>label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
       color:var(--abu);margin-bottom:7px}
 .field input,.field select{width:100%;max-width:460px;font-family:var(--body);font-size:15px;padding:12px 14px;
       border:1px solid var(--rule2);background:var(--putih);color:var(--midnight)}
