@@ -1121,7 +1121,6 @@ function renderDetail(){
       '<div class="rrow"><span>Premi dasar</span><span class="tnum">Rp '+rp(c.premi)+'</span></div>'
       +'<div class="rrow"><span>Biaya polis &amp; meterai</span><span class="tnum">Rp 60.000</span></div>'
       +'<div class="rtot"><span>Total premi</span><b class="tnum">Rp '+rp(c.total)+'</b></div>';
-    $('#pd-komisi').textContent='Estimasi komisi Anda: Rp '+rp(c.komisi);
   }
   $('#pd-si').addEventListener('input',function(){ this.value=rp(num(this.value)); draw(); });
   draw();
