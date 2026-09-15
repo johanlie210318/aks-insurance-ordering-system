@@ -126,10 +126,31 @@ button,input,select,textarea{font-family:inherit}
 .topbar .lead{display:flex;align-items:center;gap:10px}
 .topbar .logo img{height:26px;width:auto}
 .topbar h1{font-size:1.15rem;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+
+/* header gets genuinely tight on phone widths: five things (logo, title, shift
+   pill, two icon buttons, avatar) competing for ~370px of usable space after
+   padding. Trim the pill down to its numbers, tighten gaps, shrink the
+   touch-safe icon buttons a little rather than letting everything just
+   collide. */
+@media (max-width:480px){
+  .topbar{padding:10px 12px;gap:8px}
+  .topbar .lead{gap:7px;min-width:0}
+  .topbar .lead img{height:22px}
+  .topbar h1{font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar .right{gap:4px}
+  .pill{padding:6px 10px 6px 8px;font-size:11.5px;gap:6px}
+  .pill .pill-lbl{display:none}
+  .iconbtn{width:38px;height:38px}
+  .iconbtn svg{width:21px;height:21px}
+  .notifbadge{top:3px;right:3px}
+  .avchip{width:34px;height:34px;font-size:11.5px}
+  .dropmenu{width:min(88vw,300px);right:-8px}
+}
 .topbar .right{display:flex;align-items:center;gap:10px}
 .pill{display:flex;align-items:center;gap:8px;background:rgba(0,167,150,.1);border:1px solid var(--teal);
      border-radius:999px;padding:7px 13px 7px 10px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--midnight)}
 .pill .d{width:7px;height:7px;border-radius:99px;background:var(--teal)}
+.pill .pill-lbl{font-weight:600}
 .avchip{width:38px;height:38px;border-radius:50%;background:var(--navy);color:var(--putih);display:flex;
      align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border:0}
 
@@ -209,6 +230,7 @@ button,input,select,textarea{font-family:inherit}
      transition:border-color .12s}
 .leadcard:hover{border-color:var(--rule2)}
 .leadcard .top{display:flex;gap:11px;align-items:flex-start}
+.leadcard .top>div:last-child{min-width:0}
 .leadcard .av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:var(--putih);flex:none;
      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
 .leadcard .nm{font-weight:700;font-size:14.5px;color:var(--midnight);line-height:1.25}
@@ -222,10 +244,10 @@ button,input,select,textarea{font-family:inherit}
      width:100%;background:var(--kabut);border:1px solid var(--rule);border-radius:14px;
      padding:14px 16px;margin-top:10px;cursor:pointer;text-align:left;transition:border-color .12s}
 .histrow:hover{border-color:var(--rule2)}
-.histrow .hr-main{display:flex;flex-direction:column}
+.histrow .hr-main{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
 .histrow .hr-id{font-weight:700;font-size:14.5px}
-.histrow .hr-sub{font-size:12.5px;color:var(--abu);margin-top:2px}
-.histrow .hr-right{display:flex;align-items:center;gap:14px}
+.histrow .hr-sub{display:block;font-size:12.5px;color:var(--abu);margin-top:2px;overflow-wrap:break-word}
+.histrow .hr-right{display:flex;align-items:center;gap:14px;flex:none}
 .histrow .hr-amt{font-weight:600}
 .histrow .hr-right svg{width:18px;height:18px;color:var(--abu);flex:none}
 
@@ -417,7 +439,7 @@ dl.mini dd{font-weight:600;text-align:right}
         <h1 id="topTitle">Nasabah</h1>
       </div>
       <div class="right">
-        <button class="pill" id="shiftPill" type="button"><span class="d"></span><span id="shiftTimeTxt">Shift 0j 00m</span></button>
+        <button class="pill" id="shiftPill" type="button"><span class="d"></span><span class="pill-lbl">Shift</span> <span id="shiftTimeTxt">0j 00m</span></button>
         <div class="menuwrap">
           <button class="iconbtn" id="btnNotif" type="button" aria-label="Notifikasi" aria-haspopup="true" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5 5 0 0 0-5 5v3.2L5.4 15h13.2L17 12.2V9a5 5 0 0 0-5-5Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg>
@@ -460,7 +482,7 @@ dl.mini dd{font-weight:600;text-align:right}
             </button>
           </div>
         </div>
-        <button class="avchip" id="avBtn" type="button">LK</button>
+        <button class="avchip" id="avBtn" type="button">RN</button>
       </div>
     </div>
 
@@ -497,8 +519,8 @@ dl.mini dd{font-weight:600;text-align:right}
       <div class="profgrid">
         <div class="railpanel" style="padding:20px">
           <div style="display:flex;gap:14px;align-items:center">
-            <span class="avchip" style="width:52px;height:52px;font-size:16px">LK</span>
-            <div><div style="font-weight:700;font-size:16px">Leon Kenedy</div>
+            <span class="avchip" style="width:52px;height:52px;font-size:16px">RN</span>
+            <div><div style="font-weight:700;font-size:16px">Rina Novita</div>
               <div class="eyebrow" style="margin-top:2px">ID AG-1029 &middot; Agen Asuransi</div></div>
           </div>
           <div class="shiftbadge" id="shiftBadge">
@@ -628,7 +650,7 @@ var BULLETS={
 };
 
 /* ================= state ================= */
-var agent={nm:'Leon Kenedy',code:'AG-1029',initials:'LK'};
+var agent={nm:'Rina Novita',code:'AG-1029',initials:'RN'};
 var shiftActive=false, shiftStart=null, shiftTimer=null;
 var LEADS=[
   {id:'l1',nm:'Agnes Nunik Susan',email:'agnes.ns@gmail.com',phone:'0812-3456-1001',sex:'P',age:34,created:'12 Okt'},
@@ -720,7 +742,7 @@ $('#btnStartShift').addEventListener('click',function(){
 function tickShift(){
   if(!shiftActive) return;
   var ms=new Date()-shiftStart, m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60;
-  var txt='Shift '+h+'j '+(m<10?'0':'')+m+'m';
+  var txt = h+'j '+(m<10?'0':'')+m+'m';
   $('#shiftTimeTxt').textContent=txt; $('#shiftBadgeTime').textContent=h+'j '+(m<10?'0':'')+m+'m';
   var liveRow=$('#shiftHistRows .shiftrow:first-child');
   if(liveRow){
@@ -1121,6 +1143,7 @@ function renderDetail(){
       '<div class="rrow"><span>Premi dasar</span><span class="tnum">Rp '+rp(c.premi)+'</span></div>'
       +'<div class="rrow"><span>Biaya polis &amp; meterai</span><span class="tnum">Rp 60.000</span></div>'
       +'<div class="rtot"><span>Total premi</span><b class="tnum">Rp '+rp(c.total)+'</b></div>';
+    $('#pd-komisi').textContent='Estimasi komisi Anda: Rp '+rp(c.komisi);
   }
   $('#pd-si').addEventListener('input',function(){ this.value=rp(num(this.value)); draw(); });
   draw();
