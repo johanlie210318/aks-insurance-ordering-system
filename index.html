@@ -151,6 +151,10 @@ button,input,select,textarea{font-family:inherit}
      border-radius:999px;padding:7px 13px 7px 10px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--midnight)}
 .pill .d{width:7px;height:7px;border-radius:99px;background:var(--teal)}
 .pill .pill-lbl{font-weight:600}
+.pill.off{background:var(--kabut);border-color:var(--rule2);color:var(--navy);padding:7px 14px}
+
+.shiftoff{background:var(--putih);border:1px solid var(--rule);border-radius:14px;padding:16px;margin-top:18px}
+.shiftoff p{font-size:13px;color:var(--abu);line-height:1.5}
 .avchip{width:38px;height:38px;border-radius:50%;background:var(--navy);color:var(--putih);display:flex;
      align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border:0}
 
@@ -460,19 +464,6 @@ dl.mini dd{font-weight:600;text-align:right}
   </div>
 </section>
 
-<!-- ================= SHIFT GATE ================= -->
-<section class="scr" id="scr-shiftgate">
-  <div class="authwrap">
-    <div class="authcard" style="text-align:center">
-      <div class="logo" style="justify-content:center"><img src="logo-aks.png" alt="" onerror="this.remove()"><span class="wm">AKS<i>.</i> Sales</span></div>
-      <h1 style="margin-top:6px">Halo, <span id="sgName">Rina</span></h1>
-      <p class="sub">Mulai shift untuk mencatat aktivitas kunjungan dan aplikasi hari ini.</p>
-      <button class="btn block lg" id="btnStartShift" type="button">Mulai Shift</button>
-      <button class="btn ghost block" id="btnLogoutFromGate" type="button" style="margin-top:10px">Keluar</button>
-    </div>
-  </div>
-</section>
-
 <!-- ================= MAIN APP ================= -->
 <section class="scr" id="scr-app">
   <div class="appshell">
@@ -525,7 +516,7 @@ dl.mini dd{font-weight:600;text-align:right}
             </button>
           </div>
         </div>
-        <button class="avchip" id="avBtn" type="button">RN</button>
+        <button class="avchip" id="avBtn" type="button">LK</button>
       </div>
     </div>
 
@@ -562,19 +553,11 @@ dl.mini dd{font-weight:600;text-align:right}
       <div class="profgrid">
         <div class="railpanel" style="padding:20px">
           <div style="display:flex;gap:14px;align-items:center">
-            <span class="avchip" style="width:52px;height:52px;font-size:16px">RN</span>
-            <div><div style="font-weight:700;font-size:16px">Rina Novita</div>
+            <span class="avchip" style="width:52px;height:52px;font-size:16px">LK</span>
+            <div><div style="font-weight:700;font-size:16px">Leon S Kennedy</div>
               <div class="eyebrow" style="margin-top:2px">ID AG-1029 &middot; Agen Asuransi</div></div>
           </div>
-          <div class="shiftbadge" id="shiftBadge">
-            <span class="dot"></span>
-            <div style="flex:1"><div class="tm" id="shiftBadgeTime">0j 00m</div><div class="lb">Shift aktif sejak <span id="shiftStartTxt">--:--</span></div></div>
-          </div>
-          <div class="qstats">
-            <div class="qstat"><div class="v tnum" id="statLeads">0</div><div class="l">Nasabah baru hari ini</div></div>
-            <div class="qstat"><div class="v tnum" id="statApps">0</div><div class="l">Aplikasi terkirim</div></div>
-          </div>
-          <button class="btn danger block" id="btnEndShift" type="button">Akhiri Shift</button>
+          <div id="shiftControlArea"></div>
         </div>
 
         <div>
@@ -693,7 +676,7 @@ var BULLETS={
 };
 
 /* ================= state ================= */
-var agent={nm:'Rina Novita',code:'AG-1029',initials:'RN'};
+var agent={nm:'Leon S Kennedy',code:'AG-1029',initials:'LK'};
 var shiftActive=false, shiftStart=null, shiftTimer=null;
 var LEADS=[
   {id:'l1',nm:'Agnes Nunik Susan',email:'agnes.ns@gmail.com',phone:'0812-3456-1001',sex:'P',age:34,created:'12 Okt'},
@@ -768,25 +751,37 @@ function showScreen(id){$all('.scr').forEach(function(s){s.classList.toggle('on'
 
 /* ================= login / shift ================= */
 $('#btnLogin').addEventListener('click',function(){
-  $('#sgName').textContent=agent.nm.split(' ')[0];
-  showScreen('scr-shiftgate');
-});
-$('#btnLogoutFromGate').addEventListener('click',function(){ showScreen('scr-login'); });
-
-$('#btnStartShift').addEventListener('click',function(){
-  shiftActive=true; shiftStart=new Date(); newLeadsToday=0; appsToday=0;
   showScreen('scr-app');
   switchTab('leads');
   renderAll();
-  tickShift();
+  syncHeaderShiftPill();
+  renderNotifs();
+});
+
+function startShift(){
+  shiftActive=true; shiftStart=new Date(); newLeadsToday=0; appsToday=0;
+  clearInterval(shiftTimer);
+  syncHeaderShiftPill();
+  renderShiftBlock();
   renderNotifs();
   shiftTimer=setInterval(tickShift,30000);
-});
+}
+function endShift(){
+  clearInterval(shiftTimer);
+  var doneLeads=newLeadsToday, doneApps=appsToday;
+  shiftActive=false;
+  syncHeaderShiftPill();
+  renderShiftBlock();
+  renderNotifs();
+  alert('Shift diakhiri.\nNasabah baru: '+doneLeads+'\nAplikasi terkirim: '+doneApps);
+}
 function tickShift(){
   if(!shiftActive) return;
   var ms=new Date()-shiftStart, m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60;
   var txt = h+'j '+(m<10?'0':'')+m+'m';
-  $('#shiftTimeTxt').textContent=txt; $('#shiftBadgeTime').textContent=h+'j '+(m<10?'0':'')+m+'m';
+  var elA=$('#shiftTimeTxt'), elB=$('#shiftBadgeTime');
+  if(elA) elA.textContent=txt;
+  if(elB) elB.textContent=txt;
   var liveRow=$('#shiftHistRows .shiftrow:first-child');
   if(liveRow){
     var cells=liveRow.querySelectorAll('.c');
@@ -794,7 +789,37 @@ function tickShift(){
     if(cells[5]) cells[5].textContent=appsToday;
   }
 }
-$('#shiftPill').addEventListener('click',function(){ switchTab('profil'); });
+function syncHeaderShiftPill(){
+  var pill=$('#shiftPill');
+  if(!pill) return;
+  pill.classList.toggle('off',!shiftActive);
+  pill.innerHTML = shiftActive
+    ? '<span class="d"></span><span class="pill-lbl">Shift</span> <span id="shiftTimeTxt">0j 00m</span>'
+    : '<span class="pill-lbl">Mulai Shift</span>';
+  if(shiftActive) tickShift();
+}
+function renderShiftBlock(){
+  var el=$('#shiftControlArea');
+  if(!el) return;
+  if(shiftActive){
+    el.innerHTML=
+      '<div class="shiftbadge" id="shiftBadge"><span class="dot"></span>'
+      +'<div style="flex:1"><div class="tm" id="shiftBadgeTime">0j 00m</div>'
+      +'<div class="lb">Shift aktif sejak '+pad2(shiftStart.getHours())+':'+pad2(shiftStart.getMinutes())+'</div></div></div>'
+      +'<div class="qstats">'
+      +'<div class="qstat"><div class="v tnum" id="statLeads">'+newLeadsToday+'</div><div class="l">Nasabah baru hari ini</div></div>'
+      +'<div class="qstat"><div class="v tnum" id="statApps">'+appsToday+'</div><div class="l">Aplikasi terkirim</div></div></div>'
+      +'<button class="btn danger block" id="btnEndShift" type="button">Akhiri Shift</button>';
+    $('#btnEndShift').addEventListener('click', endShift);
+    tickShift();
+  } else {
+    el.innerHTML=
+      '<div class="shiftoff"><p>Anda belum memulai shift hari ini. Mulai shift untuk mencatat aktivitas kunjungan dan aplikasi yang dikerjakan.</p></div>'
+      +'<button class="btn block lg" id="btnStartShiftProfil" type="button" style="margin-top:14px">Mulai Shift</button>';
+    $('#btnStartShiftProfil').addEventListener('click', startShift);
+  }
+}
+$('#shiftPill').addEventListener('click',function(){ if(shiftActive) endShift(); else startShift(); });
 $('#avBtn').addEventListener('click',function(){ switchTab('profil'); });
 
 /* ---------------- settings dropdown ---------------- */
@@ -952,12 +977,6 @@ function openAboutSheet(){
   $('#sheetClose').addEventListener('click',closeSheet);
   $('#aboutClose').addEventListener('click',closeSheet);
 }
-
-$('#btnEndShift').addEventListener('click',function(){
-  clearInterval(shiftTimer); shiftActive=false;
-  alert('Shift diakhiri.\nNasabah baru: '+newLeadsToday+'\nAplikasi terkirim: '+appsToday);
-  showScreen('scr-login');
-});
 
 /* ================= tabs ================= */
 function switchTab(name){
@@ -2134,9 +2153,7 @@ function drawSalesChart(){
 }
 
 function renderProfil(){
-  $('#statLeads').textContent=newLeadsToday; $('#statApps').textContent=appsToday;
-  if(shiftStart) $('#shiftStartTxt').textContent=pad2(shiftStart.getHours())+':'+pad2(shiftStart.getMinutes());
-  tickShift();
+  renderShiftBlock();
 
   var thisMonthPremi=HIST.reduce(function(s,x){return s+x.total;},0);
   var thisMonthKomisi=HIST.reduce(function(s,x){return s+x.komisi;},0);
