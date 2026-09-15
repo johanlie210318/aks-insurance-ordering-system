@@ -1272,21 +1272,25 @@ function fakeKtp(l){
 
 /* ==========================================================================
    ALAMAT BERTINGKAT (Provinsi > Kab/Kota > Kecamatan > Kelurahan)
-   Data wilayah diambil langsung dari API statis publik emsifa/api-wilayah-
-   indonesia (sumber Kemendagri/BPS, di-host di GitHub Pages, gratis, tanpa
-   API key). Bukan data yang dikarang - kalau API-nya sedang tidak bisa
-   diakses, dropdown menampilkan pesan gagal, bukan data palsu.
-   Kode pos TIDAK disediakan API ini di level kelurahan, jadi tetap isian
-   manual - lihat catatan di field-nya.
+   Data wilayah diambil dari API statis publik emsifa/api-wilayah-indonesia
+   v2 (sumber Kemendagri/BPS via cahyadsn/wilayah, base domain emsifa.com
+   langsung - bukan emsifa.github.io, karena URL github.io itu redirect ke
+   http:// non-HTTPS dan diblokir browser dari halaman HTTPS). Bukan data
+   yang dikarang - kalau API-nya sedang tidak bisa diakses, dropdown
+   menampilkan pesan gagal, bukan data palsu.
+   v2 sudah menyertakan kode pos di level kelurahan, jadi field Kode Pos
+   terisi otomatis begitu kelurahan dipilih (tetap bisa diedit manual).
+   Semua endpoint v2 membungkus hasil dalam {data, meta} - wilayahFetch
+   membongkarnya supaya kode di bawah tetap kerja dengan array polos.
    ========================================================================== */
-var WILAYAH_BASE='https://emsifa.github.io/api-wilayah-indonesia/api';
+var WILAYAH_BASE='https://www.emsifa.com/api-wilayah-indonesia/v2';
 var wilayahCache={prov:null, kab:{}, kec:{}, kel:{}};
 
 function wilayahFetch(url){
   return fetch(url).then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
     return r.json();
-  });
+  }).then(function(json){ return json.data; });
 }
 
 function wilayahCascadeHTML(prefix){
@@ -1299,8 +1303,8 @@ function wilayahCascadeHTML(prefix){
     +'<div class="field"><label>Kelurahan/Desa <i>*</i></label>'
     +'<select id="'+prefix+'-kel" data-wil="kel" disabled><option value="">Pilih kecamatan dulu</option></select></div></div>'
     +'<div class="field" style="max-width:200px"><label>Kode Pos <i>*</i></label>'
-    +'<input id="'+prefix+'-pos" class="tnum" type="text" inputmode="numeric" maxlength="5" placeholder="Cth. 12630"></div>'
-    +'<p class="helpnote">Kode pos diisi manual - tidak tersedia di sumber data wilayah yang dipakai.</p>';
+    +'<input id="'+prefix+'-pos" class="tnum" type="text" inputmode="numeric" maxlength="5" placeholder="Terisi otomatis"></div>'
+    +'<p class="helpnote">Kode pos terisi otomatis begitu kelurahan dipilih - boleh diedit bila perlu.</p>';
 }
 
 function wilayahFillSelect(sel, items, placeholder){
@@ -1321,7 +1325,8 @@ function wireWilayahCascade(prefix){
   var prov=document.getElementById(prefix+'-prov'),
       kab =document.getElementById(prefix+'-kab'),
       kec =document.getElementById(prefix+'-kec'),
-      kel =document.getElementById(prefix+'-kel');
+      kel =document.getElementById(prefix+'-kel'),
+      pos =document.getElementById(prefix+'-pos');
   if(!prov) return;
 
   function loadProv(){
@@ -1333,7 +1338,7 @@ function wireWilayahCascade(prefix){
   loadProv();
 
   prov.addEventListener('change', function(){
-    wilayahLock(kec,'Pilih kab/kota dulu'); wilayahLock(kel,'Pilih kecamatan dulu');
+    wilayahLock(kec,'Pilih kab/kota dulu'); wilayahLock(kel,'Pilih kecamatan dulu'); pos.value='';
     if(!prov.value){ wilayahLock(kab,'Pilih provinsi dulu'); return; }
     if(wilayahCache.kab[prov.value]){ wilayahFillSelect(kab,wilayahCache.kab[prov.value],'Pilih kab/kota'); return; }
     kab.innerHTML='<option value="">Memuat&hellip;</option>'; kab.disabled=true;
@@ -1343,7 +1348,7 @@ function wireWilayahCascade(prefix){
   });
 
   kab.addEventListener('change', function(){
-    wilayahLock(kel,'Pilih kecamatan dulu');
+    wilayahLock(kel,'Pilih kecamatan dulu'); pos.value='';
     if(!kab.value){ wilayahLock(kec,'Pilih kab/kota dulu'); return; }
     if(wilayahCache.kec[kab.value]){ wilayahFillSelect(kec,wilayahCache.kec[kab.value],'Pilih kecamatan'); return; }
     kec.innerHTML='<option value="">Memuat&hellip;</option>'; kec.disabled=true;
@@ -1353,12 +1358,19 @@ function wireWilayahCascade(prefix){
   });
 
   kec.addEventListener('change', function(){
+    pos.value='';
     if(!kec.value){ wilayahLock(kel,'Pilih kecamatan dulu'); return; }
     if(wilayahCache.kel[kec.value]){ wilayahFillSelect(kel,wilayahCache.kel[kec.value],'Pilih kelurahan'); return; }
     kel.innerHTML='<option value="">Memuat&hellip;</option>'; kel.disabled=true;
     wilayahFetch(WILAYAH_BASE+'/villages/'+kec.value+'.json').then(function(data){
       wilayahCache.kel[kec.value]=data; wilayahFillSelect(kel,data,'Pilih kelurahan');
     }).catch(function(){ wilayahError(kel); });
+  });
+
+  kel.addEventListener('change', function(){
+    var list=wilayahCache.kel[kec.value]||[];
+    var picked=list.filter(function(v){ return v.id===kel.value; })[0];
+    pos.value = picked && picked.postal_code ? picked.postal_code : '';
   });
 }
 
