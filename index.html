@@ -357,6 +357,16 @@ dl.mini dd{font-weight:600;text-align:right}
 .paym.on{border-color:var(--navy);background:rgba(1,53,137,.05)}
 .paym .nm{font-weight:700;font-size:14.5px}
 .paym .ds{font-size:12px;color:var(--abu);margin-top:3px}
+/* Generic card-network chips, not the real Visa/Mastercard marks - drawn
+   locally so they never depend on an external asset that might 404. Swap
+   these <svg> blocks for the official brand files if/when you have them. */
+.cardnet{display:flex;gap:6px;margin-top:6px}
+.cardnet svg{width:34px;height:22px;border:1px solid var(--rule2);border-radius:4px;background:var(--putih)}
+.cn-visa rect{fill:#FBFCFD}
+.cn-visa text{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:9px;fill:#1A1F71}
+.cn-mc rect{fill:#FBFCFD}
+.cn-mc .c1{fill:#EB5B2B;opacity:.88}
+.cn-mc .c2{fill:#F2A400;opacity:.88;mix-blend-mode:multiply}
 .vabox{background:var(--kabut);border-radius:12px;padding:16px;margin-top:14px;display:flex;
      justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
 .vabox .va{font-family:var(--sans);font-weight:700;font-size:1.3rem;color:var(--navy);letter-spacing:.03em}
@@ -1329,11 +1339,19 @@ function validasiStepHTML(p,l){
     +'<p class="helpnote" style="margin-top:14px">Tekan Kembali pada langkah sebelumnya bila ada data yang perlu diperbaiki.</p>';
 }
 
+function cardNetworkIcons(){
+  return '<span class="cardnet">'
+    +'<svg class="cn-visa" viewBox="0 0 34 22" aria-label="Visa"><rect width="34" height="22" rx="4"/>'
+    +'<text x="17" y="15" text-anchor="middle">VISA</text></svg>'
+    +'<svg class="cn-mc" viewBox="0 0 34 22" aria-label="Mastercard"><rect width="34" height="22" rx="4"/>'
+    +'<circle cx="14" cy="11" r="6.4" class="c1"/><circle cx="20" cy="11" r="6.4" class="c2"/></svg>'
+    +'</span>';
+}
 function pembayaranStepHTML(){
   return '<div class="formsec"><h4>Metode Pembayaran</h4>'
     +'<div class="paymethods">'
     +'<button class="paym on" data-pm="va" type="button"><div class="nm">Transfer Bank</div><div class="ds">Virtual Account</div></button>'
-    +'<button class="paym" data-pm="cc" type="button"><div class="nm">Kartu Kredit / Debit</div><div class="ds">Visa, Mastercard</div></button>'
+    +'<button class="paym" data-pm="cc" type="button"><div class="nm">Kartu Kredit / Debit</div>'+cardNetworkIcons()+'</button>'
     +'<button class="paym" data-pm="ad" type="button"><div class="nm">Autodebit</div><div class="ds">Rekening bank</div></button>'
     +'</div><div id="pmDetail"></div>'
     +'<div class="formsec"><h4 style="font-size:14px">Rekening Pengembalian Premi</h4>'
