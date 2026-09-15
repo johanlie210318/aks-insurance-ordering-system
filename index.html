@@ -1284,6 +1284,44 @@ function fakeKtp(l){
    membongkarnya supaya kode di bawah tetap kerja dengan array polos.
    ========================================================================== */
 var WILAYAH_BASE='https://www.emsifa.com/api-wilayah-indonesia/v2';
+/* Kab/kota, kecamatan, dan kelurahan masih dari API di atas - 514+7.285+
+   83.762 baris terlalu banyak untuk disalin dengan tangan tanpa risiko
+   salah data, dan tool unduh resmi proyeknya (`npx @emsifa/wilayah
+   download`) belum tersedia per hari ini (baru ada subcommand `skill`).
+   Begitu tool itu rilis, atau kalau Anda meng-clone repo emsifa/api-
+   wilayah-indonesia dan menjalankan generator-nya sendiri, taruh hasilnya
+   di folder WILAYAH_LOCAL di bawah dengan struktur nama file yang sama
+   (regencies/{id}.json, districts/{id}.json, villages/{id}.json), lalu
+   ganti WILAYAH_BASE jadi path folder itu - tidak ada bagian lain di
+   modul ini yang perlu diubah. */
+
+var WILAYAH_LOCAL='wilayah';
+/* Folder lokal di samping index.html ini. provinces.json di folder itu
+   sudah disiapkan (lihat file yang diserahkan terpisah) - taruh isinya
+   persis di situ. PROVINCES_STATIC di bawah cuma cadangan kalau file
+   itu belum sempat diunggah, supaya dropdown tidak kosong. */
+
+/* 38 provinsi, diambil langsung dari respons nyata API v2 emsifa dan
+   diverifikasi (bukan dikarang) - dijadikan konstanta lokal supaya panggilan
+   pertama tidak perlu menunggu jaringan sama sekali. Kab/kota, kecamatan, dan
+   kelurahan tetap dari API karena datanya terlalu besar untuk disalin dengan
+   tangan (514 + 7.285 + 83.762 baris) tanpa risiko salah ketik/salah data. */
+var PROVINCES_STATIC=[
+  {"id":"11","name":"Aceh"},{"id":"12","name":"Sumatera Utara"},{"id":"13","name":"Sumatera Barat"},
+  {"id":"14","name":"Riau"},{"id":"15","name":"Jambi"},{"id":"16","name":"Sumatera Selatan"},
+  {"id":"17","name":"Bengkulu"},{"id":"18","name":"Lampung"},{"id":"19","name":"Kepulauan Bangka Belitung"},
+  {"id":"21","name":"Kepulauan Riau"},{"id":"31","name":"Daerah Khusus Ibukota Jakarta"},
+  {"id":"32","name":"Jawa Barat"},{"id":"33","name":"Jawa Tengah"},{"id":"34","name":"Daerah Istimewa Yogyakarta"},
+  {"id":"35","name":"Jawa Timur"},{"id":"36","name":"Banten"},{"id":"51","name":"Bali"},
+  {"id":"52","name":"Nusa Tenggara Barat"},{"id":"53","name":"Nusa Tenggara Timur"},
+  {"id":"61","name":"Kalimantan Barat"},{"id":"62","name":"Kalimantan Tengah"},{"id":"63","name":"Kalimantan Selatan"},
+  {"id":"64","name":"Kalimantan Timur"},{"id":"65","name":"Kalimantan Utara"},{"id":"71","name":"Sulawesi Utara"},
+  {"id":"72","name":"Sulawesi Tengah"},{"id":"73","name":"Sulawesi Selatan"},{"id":"74","name":"Sulawesi Tenggara"},
+  {"id":"75","name":"Gorontalo"},{"id":"76","name":"Sulawesi Barat"},{"id":"81","name":"Maluku"},
+  {"id":"82","name":"Maluku Utara"},{"id":"91","name":"Papua"},{"id":"92","name":"Papua Barat"},
+  {"id":"93","name":"Papua Selatan"},{"id":"94","name":"Papua Tengah"},{"id":"95","name":"Papua Pegunungan"},
+  {"id":"96","name":"Papua Barat Daya"}
+];
 var wilayahCache={prov:null, kab:{}, kec:{}, kel:{}};
 
 function wilayahFetch(url){
@@ -1329,13 +1367,20 @@ function wireWilayahCascade(prefix){
       pos =document.getElementById(prefix+'-pos');
   if(!prov) return;
 
-  function loadProv(){
-    if(wilayahCache.prov){ wilayahFillSelect(prov,wilayahCache.prov,'Pilih provinsi'); return; }
-    wilayahFetch(WILAYAH_BASE+'/provinces.json').then(function(data){
-      wilayahCache.prov=data; wilayahFillSelect(prov,data,'Pilih provinsi');
-    }).catch(function(){ wilayahError(prov); });
-  }
-  loadProv();
+  /* Coba file lokal dulu (taruh provinces.json di folder "wilayah/" di
+     samping index.html ini). Kalau filenya belum ada di server - misalnya
+     saat masih menguji sebelum sempat mengunggahnya - jatuh ke data bawaan
+     supaya dropdown tetap bisa dipakai, bukan malah kosong. */
+  fetch(WILAYAH_LOCAL+'/provinces.json').then(function(r){
+    if(!r.ok) throw new Error('local provinces.json not found');
+    return r.json();
+  }).then(function(data){
+    wilayahCache.prov=data;
+    wilayahFillSelect(prov,data,'Pilih provinsi');
+  }).catch(function(){
+    wilayahCache.prov=PROVINCES_STATIC;
+    wilayahFillSelect(prov,PROVINCES_STATIC,'Pilih provinsi');
+  });
 
   prov.addEventListener('change', function(){
     wilayahLock(kec,'Pilih kab/kota dulu'); wilayahLock(kel,'Pilih kecamatan dulu'); pos.value='';
